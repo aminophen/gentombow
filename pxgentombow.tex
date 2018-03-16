@@ -362,10 +362,10 @@ $30\,\mathrm{mm}$にしたいとき\footnote{ここでは「本文の領域以�
   指定できるインタフェースの実現。
 \item 自動で決定できる出力サイズの拡張。現状では用紙サイズが
   定義値に完全一致する場合のみ自動決定されるが、中間のサイズでも
-  その一回り大きなサイズに出力することは可能と思われる。
+  その一回り大きなサイズに出力したい場合があるのではないか。
 \item 出版用途ではカラー印刷の場合に、CMYKの版ごとにトンボを作る
-  必要がある。\textsf{color}パッケージが読み込まれている場合に、
-  オプション次第でCKなど必要に応じた色を選べるようにするとよい
+  必要がある。\textsf{color}パッケージが利用可能な場合に、
+  オプション次第でCKなど必要な色を選べるようにするとよい
   のではないか\footnote{ただし作者の本業は出版ではないので、
   商用を含む実用には程遠いかもしれない。}。
 \item $\verb+\mag+ \ne 1000$の場合について、\textsf{jsclasses}以外での
@@ -385,8 +385,13 @@ $30\,\mathrm{mm}$にしたいとき\footnote{ここでは「本文の領域以�
                         最初のCTANリリース版
   \item 2017/05/06 v0.6 \textsf{jsclasses}との共存時のチェック強化、
                         Lua\TeX-jaでの動作確認
-  \item 2017/07/23 v0.7 ドキュメント更新、CTANリリース版
-  \item 2017/12/17 v0.9 \textsf{gentombow}パッケージの新設、CTANリリース版
+  \item 2017/07/23 v0.7 ドキュメント更新
+  \item 2017/12/17 v0.9 \textsf{gentombow}パッケージの新設
+  \item 2018/03/16 v0.9e クラスオプションの\verb+tombow+等の引き継ぎ、
+                        トンボ書式のカスタマイズ機能の追加
+                        （\verb+\settombowbannerfont+,
+                          \verb+\settombowbannerfont+,
+                          \verb+\settombowwidth+の各命令）
 \end{itemize}
 
 \end{document}
