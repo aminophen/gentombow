@@ -64,13 +64,13 @@ B4サイズの用紙の中央にトンボ付きで印刷することがあるよ
 ただし、このパッケージは実際の出力サイズ指定を発行しませんので、
 以下のいずれかのパッケージと併用するとよいでしょう：
 \begin{itemize}
-\item \textsf{bounddvi}パッケージ（\textsf{platex-tools}バンドル）
+\item \textsf{bounddvi}パッケージ（\textsf{gentombow}バンドル）
 \item \textsf{bxpapersize}パッケージ（ZRさん作）
 \item \textsf{graphicx}パッケージの2016年以降の版
   （\texttt{setpagesize}機能つきのもの）
 \end{itemize}
 \textsf{bounddvi}パッケージは、\textsf{pxgentombow}と同じく
-\textsf{platex-tools}バンドルに収録されていますが、
+\textsf{gentombow}バンドルに収録されていますが、
 名前のとおりDVIを経由する場合にしか利用できません。
 一方、\textsf{bxpapersize}パッケージは汎用で、Lua\TeX のような
 PDF直接出力の場合にも利用できます。また、\textsf{graphicx}パッケージ
@@ -92,11 +92,13 @@ PDF直接出力の場合にも利用できます。また、\textsf{graphicx}パ
 Lua\TeX-jaのみで動作します。その他（pdf\LaTeX など）で使いたい
 場合は、代わりに\textsf{gentombow}パッケージを使用してください。
 
-本パッケージは、\textsf{platex-tools}バンドルの一部として
+本パッケージは、\textsf{gentombow}バンドルの一部として
 配布されています：
 \begin{verbatim}
-  https://github.com/aminophen/platex-tools
+  https://github.com/aminophen/gentombow
 \end{verbatim}
+2017年までは\textsf{platex-tools}バンドルの一部でしたが、
+2018年以降は独立させてあります。
 
 \section{簡単な使用法}
 
