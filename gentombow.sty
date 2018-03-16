@@ -1,0 +1,159 @@
+%
+% gentombow.sty
+% written by Hironobu Yamashita (@aminophen)
+%
+% This package is part of the platex-tools bundle.
+% https://github.com/aminophen/platex-tools
+%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{gentombow}
+    [2017/12/17 v0.9 Generate crop mark 'tombow']
+\def\pxgtmb@emu@pkgname{gentombow}
+
+%% error status (shared with pxgentombow.sty)
+\ifx\pxgtmb@errlevel\@undefined
+  \chardef\pxgtmb@errlevel=\z@
+\fi
+
+%% supported engines
+\ifx\pfmtversion\@undefined
+  \@ifpackageloaded{luatexja}{}{\chardef\pxgtmb@errlevel=\@ne}
+\fi
+\ifnum\pxgtmb@errlevel>\z@\else
+  \PackageInfo{\pxgtmb@emu@pkgname}{%
+    pLaTeX, upLaTeX and LuaTeX-ja are natively\MessageBreak
+    supported by `pxgentombow' package;\MessageBreak
+    there is no need for this package.}
+  \RequirePackageWithOptions{pxgentombow}
+  \expandafter\endinput
+\fi
+
+%%%%% EMULATION BEGIN
+
+% required for patching \@outputpage
+\RequirePackage{etoolbox}
+
+% patch \@outputpage
+\begingroup
+\def\pxgtmb@emu@status{0}
+\let\pxgtmb@emu@outputpage\@outputpage
+\patchcmd\pxgtmb@emu@outputpage % try first patch
+  {\reset@font\normalsize\normalsfcodes}%
+  {%
+     \@@topmargin\topmargin
+     \iftombow
+       \@@paperwidth\paperwidth \advance\@@paperwidth 6mm\relax
+       \@@paperheight\paperheight \advance\@@paperheight 16mm\relax
+       \advance\@@topmargin 1in\relax \advance\@themargin 1in\relax
+     \fi
+   \reset@font\normalsize\normalsfcodes}
+  {}{\def\pxgtmb@emu@status{1}}
+\patchcmd\pxgtmb@emu@outputpage % try second patch
+  {\@begindvi \vskip \topmargin}%
+  {\@begindvi \@outputtombow \vskip \@@topmargin}%
+  {}{\def\pxgtmb@emu@status{1}}
+% commit the change only when successful; otherwise
+% tombow feature is never enabled, exit right away
+\if 0\pxgtmb@emu@status\relax
+  \global\let\@outputpage\pxgtmb@emu@outputpage
+\else
+  \PackageError{\pxgtmb@emu@pkgname}{%
+    Failed in patching \string\@outputpage!\MessageBreak
+    Sorry, I can't proceed anymore...}\@ehc
+  \expandafter\expandafter\expandafter\endinput\expandafter
+\fi
+\endgroup
+%
+
+% provides equivalent for plcore.ltx
+\newif\iftombow \tombowfalse
+\newif\iftombowdate \tombowdatetrue
+\newdimen\@tombowwidth
+\setlength{\@tombowwidth}{.1\p@}
+\newbox\@TL\newbox\@Tl
+\newbox\@TC
+\newbox\@TR\newbox\@Tr
+\newbox\@BL\newbox\@Bl
+\newbox\@BC
+\newbox\@BR\newbox\@Br
+\newbox\@CL
+\newbox\@CR
+\font\@bannerfont=cmtt9
+\newtoks\@bannertoken
+\@bannertoken{}
+\def\maketombowbox{% removed \yoko from all boxes
+  \setbox\@TL\hbox to\z@{\hss
+      \vrule width13mm height\@tombowwidth depth\z@
+      \vrule height10mm width\@tombowwidth depth\z@
+      \iftombowdate
+        \raise4pt\hbox to\z@{\hskip5mm\@bannerfont\the\@bannertoken\hss}%
+      \fi}%
+  \setbox\@Tl\hbox to\z@{\hss
+      \vrule width10mm height\@tombowwidth depth\z@
+      \vrule height13mm width\@tombowwidth depth\z@}%
+  \setbox\@TC\hbox{%
+      \vrule width10mm height\@tombowwidth depth\z@
+      \vrule height10mm width\@tombowwidth depth\z@
+      \vrule width10mm height\@tombowwidth depth\z@}%
+  \setbox\@TR\hbox to\z@{%
+      \vrule height10mm width\@tombowwidth depth\z@
+      \vrule width13mm height\@tombowwidth depth\z@\hss}%
+  \setbox\@Tr\hbox to\z@{%
+      \vrule height13mm width\@tombowwidth depth\z@
+      \vrule width10mm height\@tombowwidth depth\z@\hss}%
+  \setbox\@BL\hbox to\z@{\hss
+      \vrule width13mm depth\@tombowwidth height\z@
+      \vrule depth10mm width\@tombowwidth height\z@}%
+  \setbox\@Bl\hbox to\z@{\hss
+      \vrule width10mm depth\@tombowwidth height\z@
+      \vrule depth13mm width\@tombowwidth height\z@}%
+  \setbox\@BC\hbox{%
+      \vrule width10mm depth\@tombowwidth height\z@
+      \vrule depth10mm width\@tombowwidth height\z@
+      \vrule width10mm depth\@tombowwidth height\z@}%
+  \setbox\@BR\hbox to\z@{%
+      \vrule depth10mm width\@tombowwidth height\z@
+      \vrule width13mm depth\@tombowwidth height\z@\hss}%
+  \setbox\@Br\hbox to\z@{%
+      \vrule depth13mm width\@tombowwidth height\z@
+      \vrule width10mm depth\@tombowwidth height\z@\hss}%
+  \setbox\@CL\hbox to\z@{\hss
+      \vrule width10mm height.5\@tombowwidth depth.5\@tombowwidth
+      \vrule height10mm depth10mm width\@tombowwidth}%
+  \setbox\@CR\hbox to\z@{%
+      \vrule height10mm depth10mm width\@tombowwidth
+      \vrule height.5\@tombowwidth depth.5\@tombowwidth width10mm\hss}%
+}
+\def\@outputtombow{%
+  \iftombow
+  \vbox to\z@{\kern-13mm\relax
+    \boxmaxdepth\maxdimen
+    \moveleft3mm\vbox to\@@paperheight{%
+      \hbox to\@@paperwidth{\hskip3mm\relax
+         \copy\@TL\hfill\copy\@TC\hfill\copy\@TR\hskip3mm}%
+      \kern-10mm
+      \hbox to\@@paperwidth{\copy\@Tl\hfill\copy\@Tr}%
+      \vfill
+      \hbox to\@@paperwidth{\copy\@CL\hfill\copy\@CR}%
+      \vfill
+      \hbox to\@@paperwidth{\copy\@Bl\hfill\copy\@Br}%
+      \kern-10mm
+      \hbox to\@@paperwidth{\hskip3mm\relax
+         \copy\@BL\hfill\copy\@BC\hfill\copy\@BR\hskip3mm}%
+    }\vss
+  }%
+  \fi
+}
+\newdimen\@@paperheight
+\newdimen\@@paperwidth
+\newdimen\@@topmargin
+\newcount\hour
+\newcount\minute
+
+%%%%% EMULATION END
+
+%% load it
+\RequirePackageWithOptions{pxgentombow}
+
+\endinput
