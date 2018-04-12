@@ -8,7 +8,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{pxgentombow}
-    [2018/03/16 v0.9e Generate crop mark 'tombow']
+    [2018/04/12 v0.9f Generate crop mark 'tombow']
 \def\pxgtmb@pkgname{pxgentombow}
 
 %% error status (shared with gentombow.sty)
@@ -238,6 +238,10 @@
 \pxgtmb@addpapersize[a3]{legal}{8.5in}{14in}
 \pxgtmb@addpapersize[a4]{executive}{7.25in}{10.5in}
 
+%% package options part 4
+\def\pxgtmb@pdfbox@status{0}
+\DeclareOption{pdfbox}{\def\pxgtmb@pdfbox@status{1}}
+
 %% default options
 \ExecuteOptions{tombowbanner}% package defaults to tombowdatetrue
 \ProcessOptions
@@ -298,6 +302,89 @@
 \voffset .5\stockheight
 \advance\voffset -.5\paperheight
 \advance\voffset-1truein\relax
+
+%% pdf "digital tombo"
+\if 1\pxgtmb@pdfbox@status
+\begingroup
+\def\pxgtmb@PDF@setbp#1#2{%
+  \@tempdima=.996264#2\relax % 0.996264 = 72/72.27 (cf. 1in = 72.27pt = 72bp)
+  \edef#1{\strip@pt\@tempdima}}
+%\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@x\stockwidth
+%\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@y\stockheight
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@x{\dimexpr(\stockwidth-\paperwidth)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@y{\dimexpr(\stockheight-\paperheight)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@x{\dimexpr(\stockwidth+\paperwidth)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@y{\dimexpr(\stockheight+\paperheight)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@x{\dimexpr(\stockwidth-\paperwidth)/2-3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@y{\dimexpr(\stockheight-\paperheight)/2-3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@x{\dimexpr(\stockwidth+\paperwidth)/2+3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@y{\dimexpr(\stockheight+\paperheight)/2+3mm}
+\xdef\pxgtmb@PDF@CTM{%
+  %% CropBox: explicit (same as MediaBox, large paper size)
+  %/CropBox  [0 0 \pxgtmb@PDF@crop@ur@x\space \pxgtmb@PDF@crop@ur@y]
+  %% BleedBox: explicit (final paper size + surrounding 3mm)
+  \noexpand\pxgtmb@PDF@begin
+  /BleedBox [\pxgtmb@PDF@bleed@ll@x\space
+             \pxgtmb@PDF@bleed@ll@y\space
+             \pxgtmb@PDF@bleed@ur@x\space
+             \pxgtmb@PDF@bleed@ur@y] \noexpand\pxgtmb@PDF@end
+  %% TrimBox: explicit (final paper size)
+  \noexpand\pxgtmb@PDF@begin
+  /TrimBox  [\pxgtmb@PDF@trim@ll@x\space
+             \pxgtmb@PDF@trim@ll@y\space
+             \pxgtmb@PDF@trim@ur@x\space
+             \pxgtmb@PDF@trim@ur@y] \noexpand\pxgtmb@PDF@end
+  %% ArtBox: implicit
+}
+\endgroup
+%%% [FIXME] only pdfTeX, dvipdfmx is supported!
+\ifnum0\ifx\pdfpageattr\@undefined\else\the\pdfoutput\fi=0\relax
+  % this feature is driver-dependent;
+  % check \Gin@driver (from graphics/graphicx/color) status
+  \ifx\Gin@driver\@undefined
+    \PackageError{\pxgtmb@pkgname}{%
+      This feature is driver-dependent;\MessageBreak
+      Please load `graphicx', `graphics' or `color'}\@ehc
+  \fi
+  % required for putting \special to every page
+  \ifx\pfmtname\@undefined
+    \RequirePackage{atbegshi}
+  \else
+    \IfFileExists{pxatbegshi.sty}
+                 {\RequirePackage{pxatbegshi}}
+                 {\RequirePackage{atbegshi}}
+  \fi
+  \def\pxgtmb@driver{dvipdfmx.def}
+  \ifx\Gin@driver\pxgtmb@driver
+    %% for dvipdfmx
+    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
+    \edef\pxgtmb@PDF@CTM{pdf:put @thispage << \pxgtmb@PDF@CTM >>}
+  \else\def\pxgtmb@driver{dvips.def}\ifx\Gin@driver\pxgtmb@driver
+    %% for dvips
+    \def\pxgtmb@PDF@begin{[ }\def\pxgtmb@PDF@end{/PAGE pdfmark }
+    \edef\pxgtmb@PDF@CTM{ps:SDict begin \pxgtmb@PDF@CTM end}
+  \else
+    \PackageError{\pxgtmb@pkgname}{%
+      Only dvips/dvipdfmx is supported!}\@ehc
+  \fi\fi
+  % emit \special to every page
+  \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
+     \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
+     % force paper size
+     \special{papersize=\the\stockwidth,\the\stockheight}%
+     % emit pdf boxes
+     \expandafter\special\expandafter{\pxgtmb@PDF@CTM}%
+     \copy\AtBeginShipoutBox}}
+\else
+  %% for pdfTeX
+  \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
+  \edef\pxgtmb@PDF@CTM{\pxgtmb@PDF@CTM}
+  % force paper size
+  \pdfpagewidth\stockwidth \pdfpageheight\stockheight
+  % emit pdf boxes
+  \expandafter\pdfpageattr\expandafter{\pxgtmb@PDF@CTM}
+\fi
+\fi
 
 %% user interface
 \newcommand{\settombowbanner}[1]{%
