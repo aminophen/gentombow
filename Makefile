@@ -24,13 +24,13 @@ gentombow.pdf: gentombow.tex
 
 .PHONY: install clean
 install:
-	mkdir -p ${TEXMF}/doc/platex/gentombow
-	cp ./Makefile ${TEXMF}/doc/platex/gentombow/
-	cp ./LICENSE ${TEXMF}/doc/platex/gentombow/
-	cp ./README.md ${TEXMF}/doc/platex/gentombow/
-	cp ./*.pdf ${TEXMF}/doc/platex/gentombow/
-	cp ./*.tex ${TEXMF}/doc/platex/gentombow/
-	mkdir -p ${TEXMF}/tex/platex/gentombow
-	cp ./*.sty ${TEXMF}/tex/platex/gentombow/
+	mkdir -p ${TEXMF}/doc/latex/gentombow
+	cp ./Makefile ${TEXMF}/doc/latex/gentombow/
+	cp ./LICENSE ${TEXMF}/doc/latex/gentombow/
+	cp ./README.md ${TEXMF}/doc/latex/gentombow/
+	cp ./*.pdf ${TEXMF}/doc/latex/gentombow/
+	cp ./*.tex ${TEXMF}/doc/latex/gentombow/
+	mkdir -p ${TEXMF}/tex/latex/gentombow
+	cp ./*.sty ${TEXMF}/tex/latex/gentombow/
 clean:
 	rm -f *.dvi *.pdf
