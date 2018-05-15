@@ -241,11 +241,11 @@
 %% package options part 4
 \def\pxgtmb@pdfbox@status{0}
 \DeclareOption{pdfbox}{\def\pxgtmb@pdfbox@status{1}}
-\DeclareOption{dvips}{\def\pxgtmb@driver{dvips.def}}
-\DeclareOption{dvipdfmx}{\def\pxgtmb@driver{dvipdfmx.def}}
-\DeclareOption{xetex}{\def\pxgtmb@driver{xetex.def}}
-\DeclareOption{pdftex}{\def\pxgtmb@driver{pdftex.def}}
-\DeclareOption{luatex}{\def\pxgtmb@driver{luatex.def}}
+\DeclareOption{dvips}{\def\pxgtmb@driver{s}}
+\DeclareOption{dvipdfmx}{\def\pxgtmb@driver{m}}
+\DeclareOption{xetex}{\def\pxgtmb@driver{x}}
+\DeclareOption{pdftex}{\def\pxgtmb@driver{p}}
+\DeclareOption{luatex}{\def\pxgtmb@driver{l}}
 
 %% default options
 \ExecuteOptions{tombowbanner}% package defaults to tombowdatetrue
@@ -346,33 +346,48 @@
 \ifnum0\ifx\pdfvariable\@undefined\else\the\outputmode\fi=0\relax
 \ifnum0\ifx\pdfpageattr\@undefined\else\the\pdfoutput\fi=0\relax
   %% for DVI output or XeTeX
- \ifx\XeTeXversion\@undefined
-  \ifx\pxgtmb@driver\@undefined % driver option unavailable
+  \ifx\XeTeXversion\@undefined
+    \chardef\pxgtmb@errlevel=\z@
     % check graphics/graphicx/color status
     \ifx\Gin@driver\@undefined
-      \PackageError{\pxgtmb@pkgname}{%
-        Option `pdfbox' is driver-dependent!\MessageBreak
-        Please add a driver option, or load\MessageBreak
-        `graphics' or `color' beforehand}\@ehc
-      \def\pxgtmb@driver{dvips.def}% fallback
-    \else
-      \let\pxgtmb@driver\Gin@driver
-    \fi
-  \else % driver option available
-    % check consistency
-    \ifx\Gin@driver\@undefined\else
-      \ifx\pxgtmb@driver\Gin@driver\else
+      \ifx\pxgtmb@driver\@undefined % driver option unavailable
         \PackageError{\pxgtmb@pkgname}{%
-          Inconsistent driver option!\MessageBreak
+          Option `pdfbox' is driver-dependent!\MessageBreak
+          Please add a driver option}\@ehc
+        \def\pxgtmb@driver{s}% fallback
+      \fi
+    \else
+      % check consistency
+      \def\pxgtmb@tempa{dvips.def}\ifx\Gin@driver\pxgtmb@tempa
+        \ifx\pxgtmb@driver\@undefined
+          \def\pxgtmb@driver{s}% pass
+        \else
+          \if s\pxgtmb@driver\else \chardef\pxgtmb@errlevel=\@ne \fi
+        \fi
+      \else\def\pxgtmb@tempa{dvipdfmx.def}\ifx\Gin@driver\pxgtmb@tempa
+        \ifx\pxgtmb@driver\@undefined
+          \def\pxgtmb@driver{m}% pass
+        \else
+          \if m\pxgtmb@driver\else \chardef\pxgtmb@errlevel=\@ne \fi
+        \fi
+      \else
+        \ifx\pxgtmb@driver\@undefined
+          \PackageError{\pxgtmb@pkgname}{%
+            Option `pdfbox' is driver-dependent!\MessageBreak
+            Please add a driver option}\@ehc
+          \def\pxgtmb@driver{s}% fallback
+        \fi
+      \fi\fi
+      \ifnum\pxgtmb@errlevel>\z@
+        \PackageWarningNoLine{\pxgtmb@pkgname}{%
+          Inconsistent driver option detected!\MessageBreak
           Package `graphics' or `color' already\MessageBreak
           loaded with different driver option}\@ehc
-        \let\pxgtmb@driver\Gin@driver % ignore user option
       \fi
     \fi
+  \else
+    \def\pxgtmb@driver{x}
   \fi
- \else
-  \def\pxgtmb@driver{xetex.def}
- \fi
   % required for putting \special to every page
   \ifx\pfmtname\@undefined
     \RequirePackage{atbegshi}
@@ -381,44 +396,43 @@
                  {\RequirePackage{pxatbegshi}}
                  {\RequirePackage{atbegshi}}
   \fi
-  \def\pxgtmb@tempa{dvips.def}\ifx\pxgtmb@driver\pxgtmb@tempa
-    %% for dvips
-    \def\pxgtmb@PDF@begin{[ }\def\pxgtmb@PDF@end{/PAGE pdfmark }
-    \edef\pxgtmb@PDF@CTM{{ps:SDict begin \pxgtmb@PDF@CTM end}}
-  \else\def\pxgtmb@tempa{dvipdfmx.def}\ifx\pxgtmb@driver\pxgtmb@tempa
-    %% for dvipdfmx
-    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
-    \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
-  \else\def\pxgtmb@tempa{xetex.def}\ifx\pxgtmb@driver\pxgtmb@tempa
-    %% for XeTeX (same as dvipdfmx)
-    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
-    \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
-  \else
-    %% for others
-    \PackageError{\pxgtmb@pkgname}{Sorry, driver unsupported}\@ehc
-    \def\pxgtmb@PDF@CTM{{}}% dummy
-  \fi\fi\fi
   % do it
-  \def\pxgtmb@tempa{xetex.def}\ifx\pxgtmb@driver\pxgtmb@tempa
-      % force paper size
-      \pdfpagewidth\stockwidth \pdfpageheight\stockheight
+  \if x\pxgtmb@driver
+    %% for XeTeX (similar to dvipdfmx, except for paper size)
+    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
+    \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
+    % force paper size
+    \pdfpagewidth\stockwidth \pdfpageheight\stockheight
+    % emit pdf boxes
     \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
       \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
-      % emit pdf boxes
-      \expandafter\special\pxgtmb@PDF@CTM
+      \expandafter\special\pxgtmb@PDF@CTM % here!
       \copy\AtBeginShipoutBox}}
   \else
+    \if s\pxgtmb@driver
+      %% for dvips
+      \def\pxgtmb@PDF@begin{[ }\def\pxgtmb@PDF@end{/PAGE pdfmark }
+      \edef\pxgtmb@PDF@CTM{{ps:SDict begin \pxgtmb@PDF@CTM end}}
+    \else\if m\pxgtmb@driver
+      %% for dvipdfmx
+      \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
+      \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
+    \else
+      %% for others (in case graphics option wrong)
+      \PackageError{\pxgtmb@pkgname}{Sorry, driver unsupported}\@ehc
+      \def\pxgtmb@PDF@CTM{{}}% dummy
+    \fi\fi
     \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
       \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
       % force paper size
       \special{papersize=\the\stockwidth,\the\stockheight}%
       % emit pdf boxes
-      \expandafter\special\pxgtmb@PDF@CTM
+      \expandafter\special\pxgtmb@PDF@CTM % here!
       \copy\AtBeginShipoutBox}}
   \fi
 \else
   %% for pdfTeX
-  \def\pxgtmb@driver{pdftex.def}
+  \def\pxgtmb@driver{p}
   \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
   \edef\pxgtmb@PDF@CTM{{\pxgtmb@PDF@CTM}}
   % force paper size
@@ -428,7 +442,7 @@
 \fi
 \else
   %% for LuaTeX
-  \def\pxgtmb@driver{luatex.def}
+  \def\pxgtmb@driver{l}
   \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
   \edef\pxgtmb@PDF@CTM{pageattr{\pxgtmb@PDF@CTM}}
   % force paper size
