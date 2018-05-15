@@ -243,6 +243,7 @@
 \DeclareOption{pdfbox}{\def\pxgtmb@pdfbox@status{1}}
 \DeclareOption{dvips}{\def\pxgtmb@driver{dvips.def}}
 \DeclareOption{dvipdfmx}{\def\pxgtmb@driver{dvipdfmx.def}}
+\DeclareOption{xetex}{\def\pxgtmb@driver{xetex.def}}
 \DeclareOption{pdftex}{\def\pxgtmb@driver{pdftex.def}}
 \DeclareOption{luatex}{\def\pxgtmb@driver{luatex.def}}
 
@@ -341,10 +342,11 @@
   %% ArtBox: implicit
 }
 \endgroup
-%% supported drivers: dvips, dvipdfmx, pdfTeX, LuaTeX
+%% supported drivers: dvips, dvipdfmx, XeTeX, pdfTeX, LuaTeX
 \ifnum0\ifx\pdfvariable\@undefined\else\the\outputmode\fi=0\relax
 \ifnum0\ifx\pdfpageattr\@undefined\else\the\pdfoutput\fi=0\relax
-  %% for DVI output
+  %% for DVI output or XeTeX
+ \ifx\XeTeXversion\@undefined
   \ifx\pxgtmb@driver\@undefined % driver option unavailable
     % check graphics/graphicx/color status
     \ifx\Gin@driver\@undefined
@@ -368,6 +370,9 @@
       \fi
     \fi
   \fi
+ \else
+  \def\pxgtmb@driver{xetex.def}
+ \fi
   % required for putting \special to every page
   \ifx\pfmtname\@undefined
     \RequirePackage{atbegshi}
@@ -376,28 +381,41 @@
                  {\RequirePackage{pxatbegshi}}
                  {\RequirePackage{atbegshi}}
   \fi
-  \def\pxgtmb@tempa{dvipdfmx.def}\ifx\pxgtmb@driver\pxgtmb@tempa
-    %% for dvipdfmx
-    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
-    \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
-  \else\def\pxgtmb@tempa{dvips.def}\ifx\pxgtmb@driver\pxgtmb@tempa
+  \def\pxgtmb@tempa{dvips.def}\ifx\pxgtmb@driver\pxgtmb@tempa
     %% for dvips
     \def\pxgtmb@PDF@begin{[ }\def\pxgtmb@PDF@end{/PAGE pdfmark }
     \edef\pxgtmb@PDF@CTM{{ps:SDict begin \pxgtmb@PDF@CTM end}}
+  \else\def\pxgtmb@tempa{dvipdfmx.def}\ifx\pxgtmb@driver\pxgtmb@tempa
+    %% for dvipdfmx
+    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
+    \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
+  \else\def\pxgtmb@tempa{xetex.def}\ifx\pxgtmb@driver\pxgtmb@tempa
+    %% for XeTeX (same as dvipdfmx)
+    \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
+    \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
   \else
     %% for others
-    \PackageError{\pxgtmb@pkgname}{%
-      Only dvips/dvipdfmx is supported!}\@ehc
-    \edef\pxgtmb@PDF@CTM{{}}% dummy
-  \fi\fi
-  % emit \special to every page
-  \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
-     \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
-     % force paper size
-     \special{papersize=\the\stockwidth,\the\stockheight}%
-     % emit pdf boxes
-     \expandafter\special\pxgtmb@PDF@CTM
-     \copy\AtBeginShipoutBox}}
+    \PackageError{\pxgtmb@pkgname}{Sorry, driver unsupported}\@ehc
+    \def\pxgtmb@PDF@CTM{{}}% dummy
+  \fi\fi\fi
+  % do it
+  \def\pxgtmb@tempa{xetex.def}\ifx\pxgtmb@driver\pxgtmb@tempa
+      % force paper size
+      \pdfpagewidth\stockwidth \pdfpageheight\stockheight
+    \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
+      \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
+      % emit pdf boxes
+      \expandafter\special\pxgtmb@PDF@CTM
+      \copy\AtBeginShipoutBox}}
+  \else
+    \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
+      \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
+      % force paper size
+      \special{papersize=\the\stockwidth,\the\stockheight}%
+      % emit pdf boxes
+      \expandafter\special\pxgtmb@PDF@CTM
+      \copy\AtBeginShipoutBox}}
+  \fi
 \else
   %% for pdfTeX
   \def\pxgtmb@driver{pdftex.def}
