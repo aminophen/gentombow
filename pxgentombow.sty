@@ -241,6 +241,10 @@
 %% package options part 4
 \def\pxgtmb@pdfbox@status{0}
 \DeclareOption{pdfbox}{\def\pxgtmb@pdfbox@status{1}}
+\DeclareOption{dvips}{\def\pxgtmb@driver{dvips.def}}
+\DeclareOption{dvipdfmx}{\def\pxgtmb@driver{dvipdfmx.def}}
+\DeclareOption{pdftex}{\def\pxgtmb@driver{pdftex.def}}
+\DeclareOption{luatex}{\def\pxgtmb@driver{luatex.def}}
 
 %% default options
 \ExecuteOptions{tombowbanner}% package defaults to tombowdatetrue
@@ -340,12 +344,29 @@
 %% supported drivers: dvips, dvipdfmx, pdfTeX, LuaTeX
 \ifnum0\ifx\pdfvariable\@undefined\else\the\outputmode\fi=0\relax
 \ifnum0\ifx\pdfpageattr\@undefined\else\the\pdfoutput\fi=0\relax
-  % this feature is driver-dependent;
-  % check \Gin@driver (from graphics/graphicx/color) status
-  \ifx\Gin@driver\@undefined
-    \PackageError{\pxgtmb@pkgname}{%
-      This feature is driver-dependent;\MessageBreak
-      Please load `graphicx', `graphics' or `color'}\@ehc
+  %% for DVI output
+  \ifx\pxgtmb@driver\@undefined % driver option unavailable
+    % check graphics/graphicx/color status
+    \ifx\Gin@driver\@undefined
+      \PackageError{\pxgtmb@pkgname}{%
+        Option `pdfbox' is driver-dependent!\MessageBreak
+        Please add a driver option, or load\MessageBreak
+        `graphics' or `color' beforehand}\@ehc
+      \def\pxgtmb@driver{dvips.def}% fallback
+    \else
+      \let\pxgtmb@driver\Gin@driver
+    \fi
+  \else % driver option available
+    % check consistency
+    \ifx\Gin@driver\@undefined\else
+      \ifx\pxgtmb@driver\Gin@driver\else
+        \PackageError{\pxgtmb@pkgname}{%
+          Inconsistent driver option!\MessageBreak
+          Package `graphics' or `color' already\MessageBreak
+          loaded with different driver option}\@ehc
+        \let\pxgtmb@driver\Gin@driver % ignore user option
+      \fi
+    \fi
   \fi
   % required for putting \special to every page
   \ifx\pfmtname\@undefined
@@ -355,18 +376,19 @@
                  {\RequirePackage{pxatbegshi}}
                  {\RequirePackage{atbegshi}}
   \fi
-  \def\pxgtmb@driver{dvipdfmx.def}
-  \ifx\Gin@driver\pxgtmb@driver
+  \def\pxgtmb@tempa{dvipdfmx.def}\ifx\pxgtmb@driver\pxgtmb@tempa
     %% for dvipdfmx
     \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
     \edef\pxgtmb@PDF@CTM{{pdf:put @thispage << \pxgtmb@PDF@CTM >>}}
-  \else\def\pxgtmb@driver{dvips.def}\ifx\Gin@driver\pxgtmb@driver
+  \else\def\pxgtmb@tempa{dvips.def}\ifx\pxgtmb@driver\pxgtmb@tempa
     %% for dvips
     \def\pxgtmb@PDF@begin{[ }\def\pxgtmb@PDF@end{/PAGE pdfmark }
     \edef\pxgtmb@PDF@CTM{{ps:SDict begin \pxgtmb@PDF@CTM end}}
   \else
+    %% for others
     \PackageError{\pxgtmb@pkgname}{%
       Only dvips/dvipdfmx is supported!}\@ehc
+    \edef\pxgtmb@PDF@CTM{{}}% dummy
   \fi\fi
   % emit \special to every page
   \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
@@ -378,6 +400,7 @@
      \copy\AtBeginShipoutBox}}
 \else
   %% for pdfTeX
+  \def\pxgtmb@driver{pdftex.def}
   \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
   \edef\pxgtmb@PDF@CTM{{\pxgtmb@PDF@CTM}}
   % force paper size
@@ -387,6 +410,7 @@
 \fi
 \else
   %% for LuaTeX
+  \def\pxgtmb@driver{luatex.def}
   \def\pxgtmb@PDF@begin{}\def\pxgtmb@PDF@end{}
   \edef\pxgtmb@PDF@CTM{pageattr{\pxgtmb@PDF@CTM}}
   % force paper size
