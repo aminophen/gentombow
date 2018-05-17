@@ -657,6 +657,10 @@
   \font\@bannerfont=#1\relax \maketombowbox}
 \newcommand{\settombowwidth}[1]{%
   \setlength{\@tombowwidth}{#1}\maketombowbox}
+\newcommand{\settombowbleed}[1]{%
+  \def\@tombowbleed{#1}\maketombowbox}
+\newcommand{\settombowcolor}[1]{%
+  \def\@tombowcolor{#1}}
 
 %% patch internal for pdfpages to work with tombow
 %% (tested on pdfpages 2017/10/31 v0.5l)
