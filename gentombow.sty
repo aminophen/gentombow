@@ -17,60 +17,106 @@
 \fi
 
 %% supported engines
+% case 2: pdfLaTeX etc.
+% case 1: pLaTeX2e <2018-04-01>+2 or older
+% case 0: newer pLaTeX2e
 \ifx\pfmtversion\@undefined
-  \@ifpackageloaded{luatexja}{}{\chardef\pxgtmb@errlevel=\@ne}
+  \@ifpackageloaded{luatexja}{}{\chardef\pxgtmb@errlevel=\tw@}
 \fi
-\ifnum\pxgtmb@errlevel>\z@\else
-  \PackageInfo{\pxgtmb@emu@pkgname}{%
-    pLaTeX, upLaTeX and LuaTeX-ja are natively\MessageBreak
-    supported by `pxgentombow' package;\MessageBreak
-    there is no need for this package.}
-  \RequirePackageWithOptions{pxgentombow}
+\ifnum\pxgtmb@errlevel<\tw@
+  \ifx\@tombowreset@@paper\@undefined
+    \chardef\pxgtmb@errlevel=\@ne
+  \fi
+\fi
+\ifcase\pxgtmb@errlevel
+  \let\pxgtmb@sel@twoone\@gobble
+  \let\pxgtmb@sel@two@one\@gobbletwo
+  \let\pxgtmb@sel@two\@gobble
+\or
+  \let\pxgtmb@sel@twoone\@firstofone
+  \let\pxgtmb@sel@two@one\@secondoftwo
+  \let\pxgtmb@sel@two\@gobble
+\or
+  \let\pxgtmb@sel@twoone\@firstofone
+  \let\pxgtmb@sel@two@one\@firstoftwo
+  \let\pxgtmb@sel@two\@firstofone
+\else
+  \PackageError{\pxgtmb@emu@pkgname}{%
+    This cannot happen!
+    Please report to package author}\@ehc
   \expandafter\endinput
 \fi
+\@onlypreamble\pxgtmb@sel@twoone
+\@onlypreamble\pxgtmb@sel@two@one
+\@onlypreamble\pxgtmb@sel@two
 
 %%%%% EMULATION BEGIN
 
 % required for patching \@outputpage
-\RequirePackage{etoolbox}
+\pxgtmb@sel@twoone{\RequirePackage{etoolbox}}
 
 % patch \@outputpage
 \begingroup
 \def\pxgtmb@emu@status{0}
 \let\pxgtmb@emu@outputpage\@outputpage
-\patchcmd\pxgtmb@emu@outputpage % try first patch
+\pxgtmb@sel@two@one
+{%% case 2 begin
+ \patchcmd\pxgtmb@emu@outputpage % try first patch
   {\reset@font\normalsize\normalsfcodes}%
-  {%
-     \@@topmargin\topmargin
-     \iftombow
-       \@@paperwidth\paperwidth \advance\@@paperwidth 6mm\relax
-       \@@paperheight\paperheight \advance\@@paperheight 16mm\relax
-       \advance\@@topmargin 1in\relax \advance\@themargin 1in\relax
-     \fi
-   \reset@font\normalsize\normalsfcodes}
+  {\@tombowreset@@paper
+   \reset@font\normalsize\normalsfcodes}%
   {}{\def\pxgtmb@emu@status{1}}
-\patchcmd\pxgtmb@emu@outputpage % try second patch
+ \patchcmd\pxgtmb@emu@outputpage % try second patch
   {\@begindvi \vskip \topmargin}%
   {\@begindvi \@outputtombow \vskip \@@topmargin}%
   {}{\def\pxgtmb@emu@status{1}}
+}%% case 2 end
+{%% case 1 begin
+ \patchcmd\pxgtmb@emu@outputpage % try patch
+  {%
+   \@@topmargin\topmargin
+   \iftombow
+     \@@paperwidth\paperwidth \advance\@@paperwidth 6mm\relax
+     \@@paperheight\paperheight \advance\@@paperheight 16mm\relax
+     \advance\@@topmargin 1in\relax \advance\@themargin 1in\relax
+   \fi
+   \reset@font\normalsize\normalsfcodes}
+  {\@tombowreset@@paper
+   \reset@font\normalsize\normalsfcodes}%
+  {}{\def\pxgtmb@emu@status{1}}
+}%% case 1 end
 % commit the change only when successful; otherwise
 % tombow feature is never enabled, exit right away
-\if 0\pxgtmb@emu@status\relax
+\pxgtmb@sel@twoone
+{%% case 2 and 1 begin
+ \if 0\pxgtmb@emu@status\relax
   \global\let\@outputpage\pxgtmb@emu@outputpage
-\else
+ \else
   \PackageError{\pxgtmb@emu@pkgname}{%
     Failed in patching \string\@outputpage!\MessageBreak
     Sorry, I can't proceed anymore...}\@ehc
   \expandafter\expandafter\expandafter\endinput\expandafter
-\fi
+ \fi
+}%% case 2 and 1 end
 \endgroup
 %
 
 % provides equivalent for plcore.ltx
+\pxgtmb@sel@two
+{%% case 2 begin
 \newif\iftombow \tombowfalse
 \newif\iftombowdate \tombowdatetrue
 \newdimen\@tombowwidth
 \setlength{\@tombowwidth}{.1\p@}
+}%% case 2 end
+\pxgtmb@sel@twoone
+{%% case 2 and 1 begin
+\setlength{\@tombowwidth}{.1\p@}
+\def\@tombowbleed{3mm}
+\def\@tombowcolor{\normalcolor}
+}%% case 2 and 1 end
+\pxgtmb@sel@two
+{%% case 2 begin
 \newbox\@TL\newbox\@Tl
 \newbox\@TC
 \newbox\@TR\newbox\@Tr
@@ -82,56 +128,61 @@
 \font\@bannerfont=cmtt9
 \newtoks\@bannertoken
 \@bannertoken{}
-\def\maketombowbox{% removed \yoko from all boxes
-  \setbox\@TL\hbox to\z@{\hss
-      \vrule width13mm height\@tombowwidth depth\z@
+}%% case 2 end
+\pxgtmb@sel@twoone
+{%% case 2 and 1 begin
+\def\maketombowbox{% hide \yoko from all boxes
+  \setbox\@TL\hbox to\z@{\csname yoko\endcsname\hss
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax height\@tombowwidth depth\z@
       \vrule height10mm width\@tombowwidth depth\z@
       \iftombowdate
         \raise4pt\hbox to\z@{\hskip5mm\@bannerfont\the\@bannertoken\hss}%
       \fi}%
-  \setbox\@Tl\hbox to\z@{\hss
+  \setbox\@Tl\hbox to\z@{\csname yoko\endcsname\hss
       \vrule width10mm height\@tombowwidth depth\z@
-      \vrule height13mm width\@tombowwidth depth\z@}%
-  \setbox\@TC\hbox{%
+      \vrule height\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth depth\z@}%
+  \setbox\@TC\hbox{\csname yoko\endcsname
       \vrule width10mm height\@tombowwidth depth\z@
       \vrule height10mm width\@tombowwidth depth\z@
       \vrule width10mm height\@tombowwidth depth\z@}%
-  \setbox\@TR\hbox to\z@{%
+  \setbox\@TR\hbox to\z@{\csname yoko\endcsname
       \vrule height10mm width\@tombowwidth depth\z@
-      \vrule width13mm height\@tombowwidth depth\z@\hss}%
-  \setbox\@Tr\hbox to\z@{%
-      \vrule height13mm width\@tombowwidth depth\z@
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax height\@tombowwidth depth\z@\hss}%
+  \setbox\@Tr\hbox to\z@{\csname yoko\endcsname
+      \vrule height\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth depth\z@
       \vrule width10mm height\@tombowwidth depth\z@\hss}%
-  \setbox\@BL\hbox to\z@{\hss
-      \vrule width13mm depth\@tombowwidth height\z@
+  \setbox\@BL\hbox to\z@{\csname yoko\endcsname\hss
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax depth\@tombowwidth height\z@
       \vrule depth10mm width\@tombowwidth height\z@}%
-  \setbox\@Bl\hbox to\z@{\hss
+  \setbox\@Bl\hbox to\z@{\csname yoko\endcsname\hss
       \vrule width10mm depth\@tombowwidth height\z@
-      \vrule depth13mm width\@tombowwidth height\z@}%
-  \setbox\@BC\hbox{%
+      \vrule depth\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth height\z@}%
+  \setbox\@BC\hbox{\csname yoko\endcsname
       \vrule width10mm depth\@tombowwidth height\z@
       \vrule depth10mm width\@tombowwidth height\z@
       \vrule width10mm depth\@tombowwidth height\z@}%
-  \setbox\@BR\hbox to\z@{%
+  \setbox\@BR\hbox to\z@{\csname yoko\endcsname
       \vrule depth10mm width\@tombowwidth height\z@
-      \vrule width13mm depth\@tombowwidth height\z@\hss}%
-  \setbox\@Br\hbox to\z@{%
-      \vrule depth13mm width\@tombowwidth height\z@
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax depth\@tombowwidth height\z@\hss}%
+  \setbox\@Br\hbox to\z@{\csname yoko\endcsname
+      \vrule depth\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth height\z@
       \vrule width10mm depth\@tombowwidth height\z@\hss}%
-  \setbox\@CL\hbox to\z@{\hss
+  \setbox\@CL\hbox to\z@{\csname yoko\endcsname\hss
       \vrule width10mm height.5\@tombowwidth depth.5\@tombowwidth
       \vrule height10mm depth10mm width\@tombowwidth}%
-  \setbox\@CR\hbox to\z@{%
+  \setbox\@CR\hbox to\z@{\csname yoko\endcsname
       \vrule height10mm depth10mm width\@tombowwidth
       \vrule height.5\@tombowwidth depth.5\@tombowwidth width10mm\hss}%
 }
 \def\@outputtombow{%
   \iftombow
-  \vbox to\z@{\kern-13mm\relax
+  \vbox to\z@{\kern-\dimexpr 10mm+\@tombowbleed\relax\relax
     \boxmaxdepth\maxdimen
-    \moveleft3mm\vbox to\@@paperheight{%
-      \hbox to\@@paperwidth{\hskip3mm\relax
-         \copy\@TL\hfill\copy\@TC\hfill\copy\@TR\hskip3mm}%
+    \moveleft\@tombowbleed \vbox to\@@paperheight{%
+    \color@begingroup
+      \@tombowcolor
+      \hbox to\@@paperwidth{\hskip\@tombowbleed\relax
+         \copy\@TL\hfill\copy\@TC\hfill\copy\@TR\hskip\@tombowbleed}%
       \kern-10mm
       \hbox to\@@paperwidth{\copy\@Tl\hfill\copy\@Tr}%
       \vfill
@@ -139,17 +190,38 @@
       \vfill
       \hbox to\@@paperwidth{\copy\@Bl\hfill\copy\@Br}%
       \kern-10mm
-      \hbox to\@@paperwidth{\hskip3mm\relax
-         \copy\@BL\hfill\copy\@BC\hfill\copy\@BR\hskip3mm}%
+      \hbox to\@@paperwidth{\hskip\@tombowbleed\relax
+         \copy\@BL\hfill\copy\@BC\hfill\copy\@BR\hskip\@tombowbleed}%
+    \color@endgroup
     }\vss
   }%
   \fi
 }
+}%% case 2 and 1 end
+\pxgtmb@sel@two
+{%% case 2 begin
 \newdimen\@@paperheight
 \newdimen\@@paperwidth
 \newdimen\@@topmargin
+}%% case 2 end
+\pxgtmb@sel@twoone
+{%% case 2 and 1 begin
+\def\@tombowreset@@paper{%
+     \@@topmargin\topmargin
+     \iftombow
+       \@@paperwidth\paperwidth
+       \advance\@@paperwidth 2\dimexpr\@tombowbleed\relax
+       \@@paperheight\paperheight \advance\@@paperheight 10mm\relax
+       \advance\@@paperheight 2\dimexpr\@tombowbleed\relax
+       \advance\@@topmargin 1in\relax \advance\@themargin 1in\relax
+     \fi
+}
+}%% case 2 and 1 end
+\pxgtmb@sel@two
+{%% case 2 begin
 \newcount\hour
 \newcount\minute
+}%% case 2 end
 
 %%%%% EMULATION END
 
