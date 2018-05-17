@@ -6,17 +6,12 @@ self-publishing.
 
 ## Bundle contents
 
-- pxgentombow.sty:
+- gentombow.sty:
     Generate crop marks (called 'tombow' in Japanese) for
     practical use in self-publishing.
-    This package requires a core 'tombow' feature provided by
-    pLaTeX/upLaTeX, LuaTeX-ja or gentombow (described below).
-- gentombow.sty:
-    Provides the core 'tombow' feature if not available.
-    The pLaTeX/upLaTeX kernel and LuaTeX-ja package have
-    a native 'tombow' feature, but the others
-    (pdfLaTeX, XeLaTeX etc.) do not;
-    in the latter case, this package provides a counterpart.
+    It provides the core 'tombow' feature if not available.
+- pxgentombow.sty:
+    (Superseded by gentombow.sty; for compatibility only.)
 - bounddvi.sty:
     Set papersize special to DVI file.
     Can be used on LaTeX/pLaTeX/upLaTeX (with DVI output mode)
@@ -34,8 +29,8 @@ All the document files (.tex) are encoded in UTF-8.
 
 ## Installation
 
-- *.sty -> $TEXMF/tex/platex/gentombow
-- *.tex, *.pdf -> $TEXMF/doc/platex/gentombow
+- *.sty -> $TEXMF/tex/latex/gentombow
+- *.tex, *.pdf -> $TEXMF/doc/latex/gentombow
 
 ## Repository
 
