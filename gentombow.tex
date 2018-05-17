@@ -48,6 +48,16 @@ going to be set by document class.
 This document itself is a demonstration of this package,
 with final A4 paper printed on B4 (JIS B4; not ISO B4!) paper.
 
+A basic usage:
+\begin{verbatim}
+  \documentclass[a4paper]{article}
+  \usepackage{gentombow}
+  \usepackage{graphicx}
+  \begin{document}
+  The content
+  \end{document}
+\end{verbatim}
+
 Note that this package does nothing about output paper size
 specification; use one of the followings to do it.
 \begin{itemize}
@@ -59,19 +69,6 @@ specification; use one of the followings to do it.
 \item \textsf{bounddvi} package
   (supports only DVI output mode; part of \textsf{gentombow} bundle)
 \end{itemize}
-
-A basic usage:
-\begin{verbatim}
-  \documentclass[a4paper]{article}
-  \usepackage{gentombow}
-  \usepackage{graphicx}
-  \begin{document}
-  The content
-  \end{document}
-\end{verbatim}
-For Japanese people, \textsf{pxgentombow} (also part of
-\textsf{gentombow} bundle) is also available;
-it requires Japanese p\LaTeX/up\LaTeX\ or Lua\TeX-ja.
 
 This package is part of \textsf{gentombow} bundle:
 \begin{verbatim}
@@ -232,6 +229,18 @@ By default, the line width of crop marks is 0.1~pt.
 This can be change to 1~pt by \verb+\settombowwidth{1pt}+.
 The argument is an arbitrary dimension.
 
+\subsection{Bleed margin width}
+
+By default, the bleed margin width is 3~mm.
+This can be change to 5~mm by \verb+\settombowwidth{5mm}+.
+The argument is an arbitrary dimension.
+
+\subsection{Crop mark color}
+
+Set the color of crop marks. Package \textsf{xcolor} (recommended) or
+\textsf{xcolor} is required.
+For example, \verb+\settombowcolor{\color[cmyk]{0,1,0,0}}+ sets magenta.
+
 \section{Additional Notes}
 
 Here is some additional notes for use with several classes/packages.
@@ -263,6 +272,9 @@ or \verb+\topmargin+, or leave it to \textsf{geometry} package.
   \item 2018/03/16 v0.9e Add \verb+\settombowbanner+,
                          \verb+\settombowbannerfont+ and
                          \verb+\settombowwidth+.
+  \item 2018/05/17 v0.9g Add \verb+pdfbox+ option,
+                         \verb+\settombowbleed+ and
+                         \verb+\settombowcolor+.
 \end{itemize}
 
 \end{document}

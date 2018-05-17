@@ -3,7 +3,7 @@ FONTMAP = -f ipaex.map -f ptex-ipaex.map
 TEXMF = $(shell kpsewhich -var-value=TEXMFHOME)
 
 all: bounddvi.pdf bounddvi-en.pdf \
-	gentombow.pdf pxgentombow.pdf
+	gentombow.pdf gentombow-ja.pdf #pxgentombow.pdf
 
 .SUFFIXES: .tex .dvi .pdf
 .tex.dvi:
