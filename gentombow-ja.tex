@@ -3,7 +3,7 @@
   \epTeXinputencoding utf8    % ensure utf-8 encoding for platex
 \fi
 
-\documentclass[a4paper]{jsarticle}
+\documentclass[a4paper,dvipdfmx]{jsarticle}
 \usepackage{doc}
 \makeatletter
 %%% import from jltxdoc.cls
@@ -38,8 +38,8 @@
 %%%
 \makeatother
 \usepackage{longtable}
-\usepackage{gentombow}
-\usepackage{bounddvi}
+\usepackage[pdfbox]{gentombow}
+%\usepackage{bounddvi}
 \GetFileInfo{gentombow.sty}
 \title{Package \textsf{gentombow} \fileversion}
 \author{Hironobu Yamashita}
@@ -134,7 +134,7 @@ C系列と\texttt{letter}, \texttt{legal}, \texttt{executive}については
       \texttt{letter}, \texttt{legal}, \texttt{executive}のとき：
         出力サイズは一回り大きなA系列
 \end{itemize}
-この場合、パッケージを読みこんだだけでトンボが付きます。
+この場合、パッケージを読み込んだだけでトンボが付きます。
 なお、用紙サイズが横長の場合は自動的に出力も横長になり、
 縦長の場合は自動的に縦長になります。
 
@@ -273,6 +273,24 @@ OpenTypeフォントを直接利用することもできます。}。
 \textsf{xcolor}パッケージ（推奨）またはまたは\textsf{color}パッケージが必要です。
 \verb+\settombowcolor{\color[cmyk]{0,1,0,0}}+とするとマゼンタになります。
 CMYKの版ごとにトンボを作成する場合や、特色のトンボが必要な場合に便利です。
+
+\section{PDFのデジタルトンボ(page box)の設定}
+
+この機能はドライバに依存するため、オプション機能としています。
+\textsf{gentombow}パッケージ読み込み時に\verb+pdfbox+オプションを
+指定します。DVIを経由する場合は、さらにドライバオプションも必須です
+\footnote{例外として、\textsf{gentombow}が読み込まれた時点で
+\textsf{graphics}/\textsf{color}のいずれかが読み込まれていた
+場合は、そのドライバ設定を引き継ぐことができます。}。
+
+この機能を有効化すると、PDFに以下のバウンディングボックス情報
+（いわゆるデジタルトンボ）が書き込まれ、
+さらに用紙サイズ設定（\verb+/MediaBox+相当）も行われます。
+\begin{itemize}
+\item \verb+/TrimBox+: 仕上がり紙面サイズ。
+\item \verb+/BleedBox+: 裁ち落とし領域を含んだサイズ。
+\item \verb+/CropBox+, \verb+/ArtBox+: 明示しない。
+\end{itemize}
 
 \section{その他の注意点}
 

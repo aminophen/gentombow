@@ -24,8 +24,8 @@
 %%%
 \makeatother
 \usepackage{longtable}
-\usepackage{gentombow}
-\usepackage{bxpapersize}
+\usepackage[pdfbox]{gentombow}
+%\usepackage{bxpapersize}
 \GetFileInfo{gentombow.sty}
 \title{Package \textsf{gentombow} \fileversion}
 \author{Hironobu Yamashita}
@@ -240,6 +240,18 @@ The argument is an arbitrary dimension.
 Set the color of crop marks. Package \textsf{xcolor} (recommended) or
 \textsf{xcolor} is required.
 For example, \verb+\settombowcolor{\color[cmyk]{0,1,0,0}}+ sets magenta.
+
+\section{Setting PDF page box (``digital tombow'')}
+
+This is an optional driver-dependent feature.
+When \textsf{gentombow} is required with the option \verb+pdfbox+,
+following page boxes are emitted to the output PDF file.
+The paper size (\verb+/MediaBox+) is also corrected.
+\begin{itemize}
+\item \verb+/TrimBox+: final paper size.
+\item \verb+/BleedBox+: paper size plus bleed margin.
+\item \verb+/CropBox+ and \verb+/ArtBox+ are not set.
+\end{itemize}
 
 \section{Additional Notes}
 
