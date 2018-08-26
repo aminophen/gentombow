@@ -358,6 +358,7 @@
     \pxgtmb@setstock{#3}{#4}%
   }%
 }
+\def\pxgtmb@magscale{1}
 \def\pxgtmb@setstock#1#2{%
   \ifpxgtmb@landscape
     \setlength\stockwidth{#2}%
@@ -368,6 +369,7 @@
   \fi
   % if \mag != 1000 and \inv@mag is defined, assume jsclasses-style \mag employment
   \ifnum\mag=\@m\else \ifx\inv@mag\@undefined\else
+    \ifx\jsc@magscale\@undefined\else\let\pxgtmb@magscale\jsc@magscale\fi
     \stockwidth=\inv@mag\stockwidth\relax
     \stockheight=\inv@mag\stockheight\relax
   \fi \fi
@@ -510,14 +512,14 @@
   \edef#1{\strip@pt\@tempdima}}
 %\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@x\stockwidth
 %\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@y\stockheight
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@x{\dimexpr(\stockwidth-\paperwidth)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@y{\dimexpr(\stockheight-\paperheight)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@x{\dimexpr(\stockwidth+\paperwidth)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@y{\dimexpr(\stockheight+\paperheight)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@x{\dimexpr(\stockwidth-\paperwidth)/2-3mm}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@y{\dimexpr(\stockheight-\paperheight)/2-3mm}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@x{\dimexpr(\stockwidth+\paperwidth)/2+3mm}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@y{\dimexpr(\stockheight+\paperheight)/2+3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@x{\dimexpr(\pxgtmb@magscale\stockwidth-\pxgtmb@magscale\paperwidth)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@y{\dimexpr(\pxgtmb@magscale\stockheight-\pxgtmb@magscale\paperheight)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@x{\dimexpr(\pxgtmb@magscale\stockwidth+\pxgtmb@magscale\paperwidth)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@y{\dimexpr(\pxgtmb@magscale\stockheight+\pxgtmb@magscale\paperheight)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@x{\dimexpr(\pxgtmb@magscale\stockwidth-\pxgtmb@magscale\paperwidth)/2-3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@y{\dimexpr(\pxgtmb@magscale\stockheight-\pxgtmb@magscale\paperheight)/2-3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@x{\dimexpr(\pxgtmb@magscale\stockwidth+\pxgtmb@magscale\paperwidth)/2+3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@y{\dimexpr(\pxgtmb@magscale\stockheight+\pxgtmb@magscale\paperheight)/2+3mm}
 \xdef\pxgtmb@PDF@CTM{%
   %% CropBox: implicit (same as MediaBox, large paper size)
   %/CropBox  [0 0 \pxgtmb@PDF@crop@ur@x\space \pxgtmb@PDF@crop@ur@y]
@@ -619,7 +621,7 @@
     \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
       \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
       % force paper size
-      \special{papersize=\the\stockwidth,\the\stockheight}%
+      \special{papersize=\the\dimexpr\pxgtmb@magscale\stockwidth,\the\dimexpr\pxgtmb@magscale\stockheight}%
       % emit pdf boxes
       \expandafter\special\pxgtmb@PDF@CTM % here!
       \copy\AtBeginShipoutBox}}
