@@ -239,6 +239,19 @@
       some derived class. Try adding `nomag' or\MessageBreak
       `nomag*' to the class option list}\@ehc
   \fi
+  % if \mag != 1000 and \inv@mag is defined, assume jsclasses-style \mag employment
+  \ifx\inv@mag\@undefined\else
+    % \pxgtmb@magscale is almost equivalent to \jsc@magscale (introduced around 2016)
+    % but defined only when \mag is actually employed
+    \begingroup
+      % calculation code borrowed from BXjscls
+      \@tempcnta=\mag
+      \advance\@tempcnta100000\relax
+      \def\pxgtmb@tempa#1#2#3#4\@nil{\@tempdima=#2#3.#4\p@}
+      \expandafter\pxgtmb@tempa\the\@tempcnta\@nil
+      \xdef\pxgtmb@magscale{\strip@pt\@tempdima}
+    \endgroup
+  \fi
 \fi
 
 %% this package will use tombo feature in pLaTeX kernel
@@ -252,13 +265,13 @@
   %    In order to force `jsclasses' to calculate correctly,
   %    `tombow' or `tombo' is required as a class option.
   %    ... or, you may add `nomag' or `nomag*' instead.
-  \ifnum\mag=\@m\else \ifx\inv@mag\@undefined\else
+  \ifx\pxgtmb@magscale\@undefined\else
     \PackageError{\pxgtmb@pkgname}{%
       It seems you are using Japanese `jsclasses'\MessageBreak
       (jsarticle, jsbook, jsreport, etc.) or some\MessageBreak
       derived class. Please add `tombow' or `tombo'\MessageBreak
       to the class option list}\@ehc
-  \fi \fi
+  \fi
   % BXjscls is already checked above, no check here
   \PackageInfo\pxgtmb@pkgname{tombow feature enabled by \pxgtmb@pkgname}
 \fi
@@ -271,8 +284,8 @@
   \space\two@digits\hour:\two@digits\minute)}
 
 %% prepare dimension
-\ifx\stockheight\@undefined \newdimen\stockheight \fi
 \ifx\stockwidth\@undefined  \newdimen\stockwidth  \fi
+\ifx\stockheight\@undefined \newdimen\stockheight \fi
 
 %% prepare flag
 \newif\ifpxgtmb@switch    \pxgtmb@switchfalse
@@ -321,11 +334,11 @@
     % \@ovri and \@ovro are used temporarily (safe enough)
     \@ovri=#3\relax
     \@ovro=#4\relax
-    % if \mag != 1000 and \inv@mag is defined, assume jsclasses-style \mag employment
-    \ifnum\mag=\@m\else \ifx\inv@mag\@undefined\else
+    % when jsclasses-style \mag employment is assumed ...
+    \ifx\pxgtmb@magscale\@undefined\else
       \@ovri=\inv@mag\@ovri\relax
       \@ovro=\inv@mag\@ovro\relax
-    \fi \fi
+    \fi
     % compare
     \ifdim\@tempdima=\@ovri\relax \ifdim\@tempdimb=\@ovro\relax
       \def\pxgtmb@guessedpaper{#2}%
@@ -358,7 +371,6 @@
     \pxgtmb@setstock{#3}{#4}%
   }%
 }
-\def\pxgtmb@magscale{1}
 \def\pxgtmb@setstock#1#2{%
   \ifpxgtmb@landscape
     \setlength\stockwidth{#2}%
@@ -367,12 +379,11 @@
     \setlength\stockwidth{#1}%
     \setlength\stockheight{#2}%
   \fi
-  % if \mag != 1000 and \inv@mag is defined, assume jsclasses-style \mag employment
-  \ifnum\mag=\@m\else \ifx\inv@mag\@undefined\else
-    \ifx\jsc@magscale\@undefined\else\let\pxgtmb@magscale\jsc@magscale\fi
+  % when jsclasses-style \mag employment is assumed ...
+  \ifx\pxgtmb@magscale\@undefined\else
     \stockwidth=\inv@mag\stockwidth\relax
     \stockheight=\inv@mag\stockheight\relax
-  \fi \fi
+  \fi
 }%
 \@onlypreamble\pxgtmb@addpapersize
 \@onlypreamble\pxgtmb@addp@persize
@@ -507,19 +518,27 @@
 %% pdf "digital tombo" (driver-dependent)
 \if 1\pxgtmb@pdfbox@status
 \begingroup
+% when jsclasses-style \mag employment is assumed ...
+\ifx\pxgtmb@magscale\@undefined\else
+  \paperwidth \pxgtmb@magscale\paperwidth
+  \paperheight\pxgtmb@magscale\paperheight
+  \stockwidth \pxgtmb@magscale\stockwidth
+  \stockheight\pxgtmb@magscale\stockheight
+\fi
+% set pdf boxes in bp unit
 \def\pxgtmb@PDF@setbp#1#2{%
   \@tempdima=.996264#2\relax % 0.996264 = 72/72.27 (cf. 1in = 72.27pt = 72bp)
   \edef#1{\strip@pt\@tempdima}}
 %\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@x\stockwidth
 %\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@y\stockheight
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@x{\dimexpr(\pxgtmb@magscale\stockwidth-\pxgtmb@magscale\paperwidth)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@y{\dimexpr(\pxgtmb@magscale\stockheight-\pxgtmb@magscale\paperheight)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@x{\dimexpr(\pxgtmb@magscale\stockwidth+\pxgtmb@magscale\paperwidth)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@y{\dimexpr(\pxgtmb@magscale\stockheight+\pxgtmb@magscale\paperheight)/2}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@x{\dimexpr(\pxgtmb@magscale\stockwidth-\pxgtmb@magscale\paperwidth)/2-3mm}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@y{\dimexpr(\pxgtmb@magscale\stockheight-\pxgtmb@magscale\paperheight)/2-3mm}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@x{\dimexpr(\pxgtmb@magscale\stockwidth+\pxgtmb@magscale\paperwidth)/2+3mm}
-\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@y{\dimexpr(\pxgtmb@magscale\stockheight+\pxgtmb@magscale\paperheight)/2+3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@x{\dimexpr(\stockwidth-\paperwidth)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ll@y{\dimexpr(\stockheight-\paperheight)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@x{\dimexpr(\stockwidth+\paperwidth)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@trim@ur@y{\dimexpr(\stockheight+\paperheight)/2}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@x{\dimexpr(\stockwidth-\paperwidth)/2-3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ll@y{\dimexpr(\stockheight-\paperheight)/2-3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@x{\dimexpr(\stockwidth+\paperwidth)/2+3mm}
+\pxgtmb@PDF@setbp\pxgtmb@PDF@bleed@ur@y{\dimexpr(\stockheight+\paperheight)/2+3mm}
 \xdef\pxgtmb@PDF@CTM{%
   %% CropBox: implicit (same as MediaBox, large paper size)
   %/CropBox  [0 0 \pxgtmb@PDF@crop@ur@x\space \pxgtmb@PDF@crop@ur@y]
@@ -618,10 +637,21 @@
       \PackageError{\pxgtmb@pkgname}{Sorry, driver unsupported}\@ehc
       \def\pxgtmb@PDF@CTM{{}}% dummy
     \fi\fi
+    %% common
+    \begingroup
+      % when jsclasses-style \mag employment is assumed ...
+      % [Note] \special{papersize=<width>,<height>} accepts only non-true units
+      % and evaluates them as if they were true units!
+      \ifx\pxgtmb@magscale\@undefined\else
+        \stockwidth \pxgtmb@magscale\stockwidth
+        \stockheight\pxgtmb@magscale\stockheight
+      \fi
+      \xdef\pxgtmb@PDF@size{{papersize=\the\stockwidth,\the\stockheight}}
+    \endgroup
     \AtBeginShipout{\setbox\AtBeginShipoutBox=\vbox{%
       \baselineskip\z@skip\lineskip\z@skip\lineskiplimit\z@
       % force paper size
-      \special{papersize=\the\dimexpr\pxgtmb@magscale\stockwidth,\the\dimexpr\pxgtmb@magscale\stockheight}%
+      \expandafter\special\pxgtmb@PDF@size
       % emit pdf boxes
       \expandafter\special\pxgtmb@PDF@CTM % here!
       \copy\AtBeginShipoutBox}}
