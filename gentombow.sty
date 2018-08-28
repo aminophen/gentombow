@@ -8,7 +8,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{gentombow}
-    [2018/08/20 v0.9h Generate crop mark 'tombow']
+    [2018/08/28 v0.9i Generate crop mark 'tombow']
 \def\pxgtmb@pkgname{gentombow}
 \@namedef{ver@pxgentombow.sty}{}% fake
 
@@ -710,6 +710,7 @@
 \newcommand{\settombowcolor}[1]{%
   \def\@tombowcolor{#1}}
 % forbid changing \@tombowbleed after \begin{document}
+% because pdf boxes are calculated only inside \AtBeginDocument
 \@onlypreamble\settombowbleed
 
 %% patch internal for pdfpages to work with tombow
