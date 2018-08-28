@@ -518,16 +518,14 @@
 %% pdf "digital tombo" (driver-dependent)
 \if 1\pxgtmb@pdfbox@status
 \begingroup
-% when jsclasses-style \mag employment is assumed ...
-\ifx\pxgtmb@magscale\@undefined\else
-  \paperwidth \pxgtmb@magscale\paperwidth
-  \paperheight\pxgtmb@magscale\paperheight
-  \stockwidth \pxgtmb@magscale\stockwidth
-  \stockheight\pxgtmb@magscale\stockheight
+% provide fallback definition inside this group
+\ifx\pxgtmb@magscale\@undefined
+  \def\pxgtmb@magscale{1}
 \fi
 % set pdf boxes in bp unit
 \def\pxgtmb@PDF@setbp#1#2{%
   \@tempdima=.996264#2\relax % 0.996264 = 72/72.27 (cf. 1in = 72.27pt = 72bp)
+  \@tempdima=\pxgtmb@magscale\@tempdima % adjustment for jsclasses-style \mag employment
   \edef#1{\strip@pt\@tempdima}}
 %\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@x\stockwidth
 %\pxgtmb@PDF@setbp\pxgtmb@PDF@crop@ur@y\stockheight
