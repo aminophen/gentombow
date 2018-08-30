@@ -263,7 +263,7 @@ OpenTypeフォントを直接利用することもできます。}。
 
 \subsection{塗り足し（ドブ）の幅}
 
-デフォルトでは塗り足し（塗り足し）の幅は3~mmですが、
+デフォルトでは塗り足し（ドブ）の幅は3~mmですが、
 \verb+\settombowbleed{5mm}+とすると5~mmになります。
 命令の引数には任意の寸法を与えることができますが、実用上は数mmでしょう。
 
@@ -311,17 +311,22 @@ CMYKの版ごとにトンボを作成する場合や、特色のトンボが必�
 これは、\textsf{jsclasses}クラス内で行われる\verb+\oddsidemargin+と
 \verb+\topmargin+の計算の都合からくる制約です。たとえば
 \begin{verbatim}
-  \documentclass[a4j,14pt]{jarticle}
+  \documentclass[a4j,14pt]{jsarticle}
   \usepackage{gentombow}
 \end{verbatim}
 という使い方は\emph{誤り}です（このままでは誤った余白設定が
 適用されますので、安全のため\textsf{gentombow}パッケージ
 がエラーを出すようにしてあります）。代わりに
 \begin{verbatim}
-  \documentclass[a4j,14pt,tombow]{jarticle}
+  \documentclass[a4j,14pt,tombow]{jsarticle}
   \usepackage{gentombow}
 \end{verbatim}
 と書くようにしてください。
+
+また、塗り足しの幅などの寸法指定は\verb+true+付きの単位を
+使用してください。例えば
+\verb+\settombowbleed{3truemm}+と指定すれば、
+\verb+\mag+による版面拡大（縮小）後の塗り足し幅を3~mmにできます。
 
 同様に、ZR氏による\textsf{BXjscls}のクラスを使用していて、10pt以外の
 サイズオプションを指定する場合は
@@ -435,7 +440,7 @@ $30\,\mathrm{mm}$にしたいとき\footnote{ここでは「本文の領域以�
                          \verb+\settombowbleed+, \verb+\settombowcolor+の追加
   \item 2018/08/20 v0.9h 用紙サイズ検出に\texttt{hagaki}を追加、
                          \textsf{pdfpages}対策の改良
-  \item 2018/08/28 v0.9i \textsf{jsclasses}の$\verb+\mag+ \ne 1000$でも
+  \item 2018/08/30 v0.9j \textsf{jsclasses}の$\verb+\mag+ \ne 1000$でも
                          \verb+pdfbox+オプションが正常動作するように改良、
                          \verb+\settombowbleed+が\verb+/TrimBox+に反映されな
                          かったバグの修正
