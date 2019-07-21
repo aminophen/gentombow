@@ -252,6 +252,9 @@ The paper size (\verb+/MediaBox+) is also corrected.
 \item \verb+/BleedBox+: paper size plus bleed margin.
 \item \verb+/CropBox+ and \verb+/ArtBox+ are not set.
 \end{itemize}
+Note: if the package \textsf{pdfx} is loaded with PDF/X mode,
+this optional feature is automatically enabled.
+Also, \verb+/CropBox+ is set explicitly.
 
 \section{Additional Notes}
 
@@ -293,6 +296,7 @@ or \verb+\topmargin+, or leave it to \textsf{geometry} package.
                          also with \verb+pdfbox+ option.
                          Fix a bug that \verb+\settombowbleed+ is not
                          considered by \verb+/TrimBox+.
+  \item 2019/07/21 v0.9k Support \textsf{pdfx} package.
 \end{itemize}
 
 \end{document}
