@@ -1,6 +1,6 @@
 %
 % bounddvi.sty
-% 2020/09/23 vX.X-v7.0 h.y.acetaminophen [at] gmail.com
+% 2020/09/25 v8.0-v7.0 h.y.acetaminophen [at] gmail.com
 % 2004/12/15 v6.0-v1.0 inoue [at] ma.ns.tcu.ac.jp
 %
 % This package, originally written by Koichi Inoue
@@ -10,7 +10,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{bounddvi}[2020/09/23 vX.X bounddvi]
+\ProvidesPackage{bounddvi}[2020/09/25 v8.0 bounddvi]
 
 % catcode trick to hide \iftombow ... \else ... \fi
 % since \iftombow is defined only in pLaTeX.
@@ -86,16 +86,12 @@ Q \fi
 \def\@prependto@begindocumenthook{\global\setbox\@begindvibox
   \vbox{\csname yoko\endcsname\unvbox\@begindvibox
     \begingroup
-      % if \stockwidth/\stockheight are defined & have effective
-      % values, copy them to \paperwidth/\paperheight
-      % for current group
       \ifx\stockwidth\@undefined\else \ifdim\stockwidth>\z@
         \paperwidth\stockwidth
       \fi\fi
       \ifx\stockheight\@undefined\else \ifdim\stockheight>\z@
         \paperheight\stockheight
       \fi\fi
-      % adjust for \mag and emit papersize special
       \divide\paperwidth\@m\multiply\paperwidth\mag
       \divide\paperheight\@m\multiply\paperheight\mag
       \special{papersize=\the\paperwidth,\the\paperheight}%
