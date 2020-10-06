@@ -1,6 +1,6 @@
 %
 % bounddvi.sty
-% 2020/09/25 v8.0-v7.0 h.y.acetaminophen [at] gmail.com
+% 2020/10/06 v8.1-v7.0 h.y.acetaminophen [at] gmail.com
 % 2004/12/15 v6.0-v1.0 inoue [at] ma.ns.tcu.ac.jp
 %
 % This package, originally written by Koichi Inoue
@@ -10,7 +10,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{bounddvi}[2020/09/25 v8.0 bounddvi]
+\ProvidesPackage{bounddvi}[2020/10/06 v8.1 bounddvi]
 
 % catcode trick to hide \iftombow ... \else ... \fi
 % since \iftombow is defined only in pLaTeX.
@@ -54,7 +54,8 @@ Q \fi
 %% and \UseHook{begindocument} etc. are used.
 %% This code appends papersize special to the _end_ of the hook.
 %% (Note: support for old dvips is removed.)
-\ifx\AddToHook\@undefined\else
+\providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}
+\IfFormatAtLeastTF{2020-10-01}{%
   \AtBeginDocument{\AtBeginDvi{%
     \begingroup
       % if \stockwidth/\stockheight are defined & have effective
@@ -71,8 +72,8 @@ Q \fi
       \divide\paperheight\@m\multiply\paperheight\mag
       \special{papersize=\the\paperwidth,\the\paperheight}%
     \endgroup}}
-  \expandafter\endinput
-\fi
+  \endinput
+}{}
 
 %% The rest of this package is meant for
 %% LaTeX2e 2020-02-02 PL5 or older.
