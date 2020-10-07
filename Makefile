@@ -1,18 +1,23 @@
-KANJI = -kanji=utf8
-FONTMAP = -f ipaex.map -f ptex-ipaex.map
 TEXMF = $(shell kpsewhich -var-value=TEXMFHOME)
 
+KANJI = -kanji=utf8
+#FONTMAP = -f ipaex.map -f ptex-ipaex.map
+FONTMAP = -f haranoaji.map -f ptex-haranoaji.map
+LTX = platex $(KANJI)
+DPX = dvipdfmx $(FONTMAP)
+
 all: bounddvi.pdf bounddvi-en.pdf \
-	gentombow.pdf gentombow-ja.pdf #pxgentombow.pdf
+	gentombow.pdf gentombow-ja.pdf pxgentombow.pdf
 
 .SUFFIXES: .tex .dvi .pdf
 .tex.dvi:
-	platex $(KANJI) $<
-	platex $(KANJI) $<
+	$(LTX) $<
+	$(LTX) $<
 	rm *.aux *.log
 .dvi.pdf:
-	dvipdfmx $(FONTMAP) $<
+	$(DPX) $<
 
+# specific build
 bounddvi-en.dvi: bounddvi-en.tex
 	latex $<
 	latex $<
