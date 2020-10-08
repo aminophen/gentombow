@@ -1,6 +1,6 @@
 %
 % bounddvi.sty
-% 2020/10/06 v8.1-v7.0 h.y.acetaminophen [at] gmail.com
+% 2020/10/08 v8.2-v7.0 h.y.acetaminophen [at] gmail.com
 % 2004/12/15 v6.0-v1.0 inoue [at] ma.ns.tcu.ac.jp
 %
 % This package, originally written by Koichi Inoue
@@ -10,15 +10,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{bounddvi}[2020/10/06 v8.1 bounddvi]
-
-% catcode trick to hide \iftombow ... \else ... \fi
-% since \iftombow is defined only in pLaTeX.
-\ifx\pfmtname\@undefined
-  \catcode`\Q=14\relax
-\else
-  \catcode`\Q=9\relax
-\fi
+\ProvidesPackage{bounddvi}[2020/10/08 v8.2 bounddvi]
 
 % Note: graphics/color drivers
 %  - dvips.def 2016/07/10 v3.1a or later
@@ -28,27 +20,55 @@
 % setpagesize option (= default since 2016) and \mag equals
 % to 1000, we can exploit its routine.
 % (they are using \AtBeginDocument{\AtBeginDvi{...}})
-% However, these .def files do _not_ care about tombow by pLaTeX;
-% so, we set \stock{width,height} to invoke stock test in those
+% However, these .def files do _not_ care about tombow; so,
+% we set \stock{width,height} to invoke stock test in those
 % files (probably meant for memoir.cls).
-Q \iftombow
-Q   % if \stockwidth/\stockheight are not available,
-Q   % define them now
-Q   \ifx\stockwidth\@undefined \newdimen\stockwidth \fi
-Q   \ifx\stockheight\@undefined \newdimen\stockheight \fi
-Q   % if \stockwidth already has effective value, do nothing;
-Q   % otherwise assume pLaTeX-style tombow and set it to
-Q   % \paperwidth + 2in (similar for \stockheight)
-Q   \ifdim\stockwidth>\z@\else
-Q     \stockwidth\paperwidth \advance\stockwidth2in
-Q   \fi
-Q   \ifdim\stockheight>\z@\else
-Q     \stockheight\paperheight \advance\stockheight2in
-Q   \fi
-Q \fi
 
-% reset catcode trick
-\catcode`\Q=11\relax
+% detection of \iftombow status is delayed until \AtBeginDocument,
+% to support both (u)pLaTeX kernel and ``gentombow.sty''
+\def\bddv@maybe@ensure@stock{%
+  \ifx\tombowtrue\@undefined
+    \let\bddv@ensure@stock\relax % skip if-tokens
+  \fi
+  \bddv@ensure@stock}
+
+% when \iftombow == \iftrue, we also need \stock{width,height}
+\def\bddv@ensure@stock{%
+  \iftombow
+    % if \stockwidth/\stockheight are not available,
+    % define them now
+    \ifx\stockwidth\@undefined \newdimen\stockwidth \fi
+    \ifx\stockheight\@undefined \newdimen\stockheight \fi
+    % if \stockwidth already has effective value, do nothing;
+    % otherwise assume pLaTeX-style tombow and set it to
+    % \paperwidth + 2in (similar for \stockheight)
+    \ifdim\stockwidth>\z@\else
+      \stockwidth\paperwidth \advance\stockwidth2in
+    \fi
+    \ifdim\stockheight>\z@\else
+      \stockheight\paperheight \advance\stockheight2in
+    \fi
+  \fi
+}
+
+% prepare actual papersize special
+\def\bddv@emit@papersize{%
+  \begingroup
+    % if \stockwidth/\stockheight are defined & have effective
+    % values, copy them to \paperwidth/\paperheight
+    % for current group
+    \ifx\stockwidth\@undefined\else \ifdim\stockwidth>\z@
+      \paperwidth\stockwidth
+    \fi\fi
+    \ifx\stockheight\@undefined\else \ifdim\stockheight>\z@
+      \paperheight\stockheight
+    \fi\fi
+    % adjust for \mag and emit papersize special
+    \divide\paperwidth\@m\multiply\paperwidth\mag
+    \divide\paperheight\@m\multiply\paperheight\mag
+    \special{papersize=\the\paperwidth,\the\paperheight}%
+  \endgroup
+}
 
 %% Since LaTeX2e 2020-10-01, \@begindocumenthook is deprecated
 %% and \UseHook{begindocument} etc. are used.
@@ -56,22 +76,9 @@ Q \fi
 %% (Note: support for old dvips is removed.)
 \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}
 \IfFormatAtLeastTF{2020-10-01}{%
-  \AtBeginDocument{\AtBeginDvi{%
-    \begingroup
-      % if \stockwidth/\stockheight are defined & have effective
-      % values, copy them to \paperwidth/\paperheight
-      % for current group
-      \ifx\stockwidth\@undefined\else \ifdim\stockwidth>\z@
-        \paperwidth\stockwidth
-      \fi\fi
-      \ifx\stockheight\@undefined\else \ifdim\stockheight>\z@
-        \paperheight\stockheight
-      \fi\fi
-      % adjust for \mag and emit papersize special
-      \divide\paperwidth\@m\multiply\paperwidth\mag
-      \divide\paperheight\@m\multiply\paperheight\mag
-      \special{papersize=\the\paperwidth,\the\paperheight}%
-    \endgroup}}
+  \AtBeginDocument{%
+    \bddv@maybe@ensure@stock
+    \AtBeginDvi{\bddv@emit@papersize}}%
   \endinput
 }{}
 
@@ -80,23 +87,17 @@ Q \fi
 
 % following code is almost equivalent to
 %   \AtBeginDocument{\AtBeginDvi{...}}
-% however, we append the specification to the _beginning_ of
-% \@begindocumenthook; this ensures proper papersize when
-% dvips (TeX Live 2016 or earlier) is used.
+% however, we put into the _beginning_ of \@begindocumenthook;
+% this ensures proper papersize when old dvips
+% (TeX Live 2016 or earlier) is used.
+% also, note that old pLaTeX (before 2016/07/01) needs \yoko
+% at the beginning of \AtBeginDvi.
 \begingroup
-\def\@prependto@begindocumenthook{\global\setbox\@begindvibox
-  \vbox{\csname yoko\endcsname\unvbox\@begindvibox
-    \begingroup
-      \ifx\stockwidth\@undefined\else \ifdim\stockwidth>\z@
-        \paperwidth\stockwidth
-      \fi\fi
-      \ifx\stockheight\@undefined\else \ifdim\stockheight>\z@
-        \paperheight\stockheight
-      \fi\fi
-      \divide\paperwidth\@m\multiply\paperwidth\mag
-      \divide\paperheight\@m\multiply\paperheight\mag
-      \special{papersize=\the\paperwidth,\the\paperheight}%
-    \endgroup}}
+\def\@prependto@begindocumenthook{%
+  \bddv@maybe@ensure@stock
+  \global\setbox\@begindvibox\vbox{%
+    \csname yoko\endcsname\unvbox\@begindvibox
+    \bddv@emit@papersize}}
 \toks@\expandafter\expandafter\expandafter
   {\expandafter\@prependto@begindocumenthook\@begindocumenthook}
 \xdef\@begindocumenthook{\the\toks@}
