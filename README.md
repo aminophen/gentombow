@@ -3,6 +3,16 @@
 This bundle provides a LaTeX package for generating Japanese-style
 crop marks (called 'tombow' in Japanese) for practical use in
 self-publishing.
+The core feature of "gentombow.sty" is based on pLaTeX kernel.
+
+## Supported engines
+
+All packages except bounddvi.sty works with the followings:
+- LaTeX + dvips/dvipdfmx
+- pLaTeX/upLaTeX + dvips/dvipdfmx
+- pdfLaTeX
+- LuaLaTeX
+- XeLaTeX
 
 ## Bundle contents
 
@@ -21,6 +31,20 @@ self-publishing.
     https://www.ma.ns.tcu.ac.jp/Pages/TeX/bounddvi.sty.html
     (dead link).
     Now it is maintained by Hironobu Yamashita by his courtesy.
+
+## Miscellaneous patches
+
+Some packages are unaware of crop marks defined in "gentombow";
+to cope with those packages, patches are provided here.
+- pxtextpos.sty:
+    Patch for textpos.sty (by Norman Gray).
+- pxesopic.sty:
+    Patch for eso-pic.sty (by Rolf Niepraschk).
+- pxpdfpages.sty:
+    Patch for pdfpages.sty (by Andreas Matthias).
+
+These patches can also be used independent of "gentombow",
+to avoid problems with crop marks on pLaTeX and upLaTeX.
 
 ## Character encoding
 
