@@ -1,0 +1,38 @@
+% based on `eso-article-test.tex' in eso-pic
+
+\RequirePackage{plautopatch}
+
+\listfiles
+\documentclass[a4paper,twoside,dvipdfmx,tombow]{jarticle}
+
+\usepackage{eso-pic}
+\usepackage{pict2e,showframe,xcolor}
+\usepackage{bounddvi}
+
+\AddToShipoutPicture{%
+  \AtPageLowerLeft{\circle*{40}}%
+  \AtPageUpperLeft{\circle*{40}}%
+  \AtPageCenter{\circle*{40}}%
+  \AtTextLowerLeft{\circle*{15}}%
+  \AtTextUpperLeft{\circle*{15}}%
+  \color{red}%
+  \AtStockLowerLeft{\circle*{20}}%
+  \AtStockUpperLeft{\circle*{20}}%
+  \AtStockCenter{\circle*{20}}%
+}
+ 
+\begin{document}  \Huge \bfseries
+
+\noindent
+\hrulefill First Page\hrulefill 
+\vfill
+\noindent 
+X \hfill X 
+\newpage 
+\noindent
+\hrulefill Second Page\hrulefill 
+\vfill
+\noindent 
+X \hfill X
+
+\end{document}

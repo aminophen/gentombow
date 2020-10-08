@@ -1,0 +1,237 @@
+%
+% pxesopic.sty
+% written by Hironobu Yamashita (@aminophen)
+%
+% This package is part of the gentombow bundle.
+% https://github.com/aminophen/gentombow
+%
+% This package is expected to be compatible with
+%   * eso-pic.sty
+%     2015/07/21 v2.0g -- 2020/09/27 v2.0i
+%
+% --------------------------------------------------------------
+% [Note]
+% The package ``pxesopic.sty'' relies heavily on internals
+% of ``plautopatch.sty''.
+% Also, ``pxesopic.sty'' is incompatible with ``memoir.cls''.
+% --------------------------------------------------------------
+%
+
+%% package declaration
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pxesopic}
+    [2020/10/08 v0.4a Patch to eso-pic for tombow]
+
+%% preparations
+\def\pxesop@pkgname{pxesopic}
+\def\pxesop@error{\PackageError\pxesop@pkgname}
+\def\pxesop@warn{\PackageWarningNoLine\pxesop@pkgname}
+\let\pxesop@debug\@gobble
+%\def\pxesop@debug#1{\typeout{\pxesop@pkgname: [DEBUG] #1}}% for debug
+
+\@ifclassloaded{memoir}{%
+  \pxesop@warn{This package should not be loaded with memoir.cls}}{}
+
+\@ifpackageloaded{eso-pic}{%
+  \pxesop@error{%
+    Package eso-pic is already loaded!\MessageBreak
+    Load pxesopic earlier}\@ehc
+}{}
+
+%% hooks
+\ifx\declare@file@substitution\@undefined
+  % LaTeX2e 2020-02-02 PL5 or older
+  \RequirePackage{filehook}
+  \let\pxesop@ExecuteAfterPackage=\AtEndOfPackageFile
+  \let\pxesop@ExecuteBeforePackage=\AtBeginOfPackageFile
+\else
+  % LaTeX2e 2020-10-01 or newer
+  \def\pxesop@ExecuteAfterPackage#1{\AddToHook{package/after/#1}}
+  \def\pxesop@ExecuteBeforePackage#1{\AddToHook{package/before/#1}}
+\fi
+
+%% the contents of \AtBeginShipout is dependent on \iftombow;
+%% delay execution of \AtBeginShipout inside ``eso-pic.sty''
+%% until \AtBeginDocument, to support both (u)pLaTeX kernel
+%% and ``gentombow.sty''
+\RequirePackage{atbegshi}% eso-pic requires atbegshi
+\ifx\AtBegShi@Output\@undefined
+  % LaTeX2e 2020-10-01: an emulation by ``atbegshi-ltx.sty''
+  % => pLaTeX2e 2020-10-01 natively supports it
+\else
+  % older: the real ``atbegshi.sty'' is loaded
+  \RequirePackage{pxatbegshi}
+\fi
+%
+\pxesop@ExecuteBeforePackage{eso-pic}{\pxesop@before}
+\pxesop@ExecuteAfterPackage{eso-pic}{\pxesop@after}
+%
+\def\pxesop@before{%
+  \let\pxesop@AtBeginShipout\AtBeginShipout
+  \def\AtBeginShipout##1{\def\pxesop@hook{##1}}% hide it
+  \pxesop@debug{\noexpand\AtBeginShipout disabled}%
+  \let\pxesop@before\relax
+}
+\def\pxesop@after{%
+  \let\AtBeginShipout\pxesop@AtBeginShipout    % restore
+  \let\pxesop@AtBeginShipout\relax
+  \pxesop@debug{\noexpand\AtBeginShipout restored}%
+  \let\@unknownoptionerror\relax %% avoid an error
+  \pxesop@debug{\noexpand\@unknownoptionerror disabled}%
+  \let\pxesop@after\relax
+}
+%%
+
+%% load it; be careful not to cause unknown option error!
+\expandafter\ifx\csname @unknownoptionerror\endcsname
+  \pxesop@error{Failed to save \noexpand\@unknownoptionerror}\@ehc
+\fi
+\let\pxesop@unknownoptionerror\@unknownoptionerror
+%
+\chardef\pxesop@status\z@
+\@ifpackageloaded{plautopatch}{%
+  \expandafter\ifx\csname platpc@begin@eso-pic\endcsname\relax
+    % ``plautopatch.sty'' is loaded but the macro is \relax
+    % => means that ``pxesopic.sty'' is automatically loaded
+    \@ifl@t@r{\fmtversion}{2020/10/01}{%
+      \chardef\pxesop@status\@ne
+    }{}%
+  \fi
+}{}
+%
+%% pass all options to keyval-style ``eso-pic.sty''
+\DeclareOption*{\PassOptionsToPackage{\CurrentOption}{eso-pic}}
+\ProcessOptions\relax
+\RequirePackage{eso-pic}
+%
+%% ensure internal dimensions added in ``eso-pic.sty'' v2.0i
+\ifx\ESO@tempdima\@undefined \newdimen\ESO@tempdima \fi
+\ifx\ESO@tempdimb\@undefined \newdimen\ESO@tempdimb \fi
+%
+%% recover the error
+\ifnum\pxesop@status>\z@ % auto
+  \def\pxesop@pkgtohook{eso-pic}%
+  % note that ``plautopatch.sty'' discards the hook
+  % on LaTeX2e 2020-02-02 PL5 or older
+  \ifx\declare@file@substitution\@undefined
+    \let\pxesop@pkgtohook\pxesop@pkgname
+    % throw an error for unsupported usage
+    % [FIXME] the error below is actually unnecessary when
+    % none of ``eso-pic.sty'' options is used; how to detect that?
+    \pxesop@error{Try loading \pxesop@pkgname\space by hand}\@ehc
+  \fi
+\else
+  \let\pxesop@pkgtohook\pxesop@pkgname
+\fi
+\pxesop@ExecuteAfterPackage\pxesop@pkgtohook{%
+  \let\@unknownoptionerror\pxesop@unknownoptionerror
+  \pxesop@debug{\noexpand\@unknownoptionerror restored}%
+}
+%%
+
+%% do it
+%-- similar to bounddvi.sty (checked 2020/10/08 v8.2)
+% detection of \iftombow availability is delayed until \AtBeginDocument,
+% to support both (u)pLaTeX kernel and ``gentombow.sty''
+% Note: this package does not consider changing \iftombow status
+% in the middle of a single document.
+\AtBeginDocument{\pxesop@do}
+\def\pxesop@do{%
+  \ifx\tombowtrue\@undefined
+    \pxesop@debug{Tombow feature unavailable, no patch applied}%
+    \let\pxesop@switch\pxesop@orig % skip if-tokens and restore
+  \fi
+  \pxesop@switch}
+%
+\def\pxesop@switch{%
+  \iftombow \pxesop@ensure@stock \pxesop@new
+  \else \pxesop@orig \fi}
+%
+\def\pxesop@ensure@stock{%
+  %\iftombow
+    % if \stockwidth/\stockheight are not available,
+    % define them now
+    \ifx\stockwidth\@undefined \newdimen\stockwidth \fi
+    \ifx\stockheight\@undefined \newdimen\stockheight \fi
+    % if \stockwidth already has effective value, do nothing;
+    % otherwise assume pLaTeX-style tombow and set it to
+    % \paperwidth + 2in (similar for \stockheight)
+    \ifdim\stockwidth>\z@\else
+      \stockwidth\paperwidth \advance\stockwidth2in
+    \fi
+    \ifdim\stockheight>\z@\else
+      \stockheight\paperheight \advance\stockheight2in
+    \fi
+  %\fi
+}
+%--
+%
+%% for \iftombow is FALSE => restore from ``eso-pic.sty''
+\expandafter\def\expandafter\pxesop@orig\expandafter{%
+  \expandafter\AtBeginShipout\expandafter{\pxesop@hook}}
+%
+%% for \iftombow is TRUE => redefine by ``pxesopic.sty''
+\def\pxesop@new{%
+  %% \AtStockLowerLeft: based on TRUE of \ESO@isMEMOIR
+  \renewcommand\AtStockLowerLeft[1]{%
+    \begingroup
+      \ESO@tempdima=-\stockwidth
+      \advance\ESO@tempdima\paperwidth
+      \ESO@tempdimb=-\stockheight
+      \advance\ESO@tempdimb\paperheight
+      %% specific BEGIN
+      \advance\ESO@tempdima 1in\relax
+      \advance\ESO@tempdimb 1in\relax
+      \advance\ESO@tempdima \hoffset\relax
+      \advance\ESO@tempdimb \voffset\relax
+      %% specific END
+      \AtPageLowerLeft{%
+        \put(\LenToUnit{\ESO@tempdima},\LenToUnit{\ESO@tempdimb}){##1}%
+      }%
+    \endgroup
+  }% ===
+  %% \AtStockUpperLeft: based on TRUE of \ESO@isMEMOIR
+  \renewcommand\AtStockUpperLeft[1]{%
+    \AtStockLowerLeft{%
+      \put(0,\LenToUnit{\stockheight}){##1}%
+    }%
+  }% ===
+  %% \AtStockCenter: based on TRUE of \ESO@isMEMOIR
+  \renewcommand\AtStockCenter[1]{%
+    \AtStockLowerLeft{%
+      \put(\LenToUnit{.5\stockwidth},\LenToUnit{.5\stockheight}){##1}%
+    }%
+  }%
+  %% \AtTextUpperLeft: same as FALSE of \ESO@isMEMOIR
+  %  (no change)
+  %
+  %% \AtBeginShipout: based on TRUE of \ESO@isMEMOIR
+  \AtBeginShipout{%
+    \ESO@tempdima=\dimexpr(\stockwidth-\paperwidth)/2\relax
+    \ESO@tempdimb=-\dimexpr(\stockheight+\paperheight)/2\relax
+    \ifESO@texcoord
+      \advance\ESO@tempdimb\paperheight % [FIXME] not sure!
+    \fi
+    %% specific BEGIN
+    \advance\ESO@tempdima -\hoffset\relax
+    \advance\ESO@tempdimb \voffset\relax
+    %% specific END
+    \nointerlineskip
+    \AtBeginShipoutUpperLeft{%
+      \put(\LenToUnit{\ESO@tempdima},\LenToUnit{\ESO@tempdimb}){%
+        \ESO@HookIIIBG\ESO@HookIBG\ESO@HookIIBG
+        \global\let\ESO@HookIIBG\@empty
+      }%
+    }%
+    \AtBeginShipoutUpperLeftForeground{%
+      \put(\LenToUnit{\ESO@tempdima},\LenToUnit{\ESO@tempdimb}){%
+        \ESO@HookIFG\ESO@HookIIFG\ESO@HookIIIFG
+        \global\let\ESO@HookIIFG\@empty
+      }%
+    }%
+  }% ===
+}
+%%
+
+\endinput
+%% EOF

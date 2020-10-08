@@ -1,0 +1,44 @@
+% based on `eso-ex1.tex' in eso-pic
+% -- a framed background example by Rolf Niepraschk
+
+\RequirePackage{plautopatch}
+
+\listfiles
+\documentclass[a4paper,tombow]{jarticle}
+\usepackage{eso-pic,calc}
+\usepackage{bounddvi}
+
+\makeatletter
+\newdimen\my@tempdima
+\newdimen\my@tempdimb
+\newdimen\my@tempdimc
+\AddToShipoutPicture{%
+  \begingroup
+    \setlength{\my@tempdima}{15mm}%
+    \setlength{\my@tempdimb}{\paperwidth-2\my@tempdima}%
+    \setlength{\my@tempdimc}{\paperheight-2\my@tempdima}%
+    \thicklines%
+    \put(\LenToUnit{\my@tempdima},\LenToUnit{\my@tempdima}){%
+      \framebox(\LenToUnit{\my@tempdimb},\LenToUnit{\my@tempdimc}){}}%
+  \endgroup
+}
+\makeatother
+
+\begin{document}
+
+  \section*{First page}
+
+  This page and all the following have a frame with 15~mm
+  distance from the paper edges.\newpage
+
+  \section*{Second page}
+
+  \AddToShipoutPicture*{\put(100,100){\circle{40}}}
+
+  Only this page has a circle on the lower left side.
+
+  \newpage
+
+  \section*{Last page}
+
+\end{document}

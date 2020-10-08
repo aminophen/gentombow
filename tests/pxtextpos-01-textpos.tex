@@ -1,0 +1,35 @@
+\documentclass[a4paper]{article}
+
+\usepackage[pdfbox,dvipdfmx]{gentombow}%%% tombow
+
+\usepackage[absolute]{textpos}
+
+\usepackage{pxtextpos}%%% patch
+
+\setlength{\TPHorizModule}{30mm}
+\setlength{\TPVertModule}{\TPHorizModule}
+\textblockorigin{10mm}{10mm} % start everything near the top-left corner
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\begin{textblock}{3}(0,0)
+This block is 3 modules wide, and is placed with its top left corner
+at the `origin' on the page.  Note that the length of the block is not
+specified in the arguments -- the box will be as long as necessary to
+accomodate the text inside it.  You need to examine the output of the
+text to adjust the positioning of the blocks on the page.
+\end{textblock}
+
+\begin{textblock}{2}(2,1)
+\textblocklabel{block two}
+Here is another, slightly narrower, block, at position (2,1) on the page.
+\end{textblock}
+
+\begin{textblock}{3}[0.5,0.5](2,3)
+This block is at position (2,3), but because the optional argument
+[0.5,0.5] has been given, it is the centre of the block which is
+located at that point, rather than the top-left corner.
+\end{textblock}
+
+\end{document}

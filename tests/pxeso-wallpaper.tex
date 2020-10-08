@@ -1,0 +1,38 @@
+% CTAN: wallpaper example.tex
+\RequirePackage{plautopatch}
+
+\documentclass[dvipdfmx,a4paper,11pt]{tarticle}
+\usepackage{wallpaper}% eso-pic
+\usepackage{color}
+
+\usepackage[pdfbox]{gentombow}
+
+\begin{document}
+\TileSquareWallPaper{4}{example-image-a}
+\section*{An example of square tiles}
+\newpage
+
+\ThisTileWallPaper{0.25\paperwidth}{0.5\paperheight}{example-image-a}
+\section*{An example of changing the aspect ratio of the tiles on this page}
+\newpage
+
+\ThisCenterWallPaper{1.1}{example-image-b}
+\color{white}
+\section*{Using centered wallpaper here}
+\newpage
+
+\ThisCenterWallPaper{0.25}{example-image-b}
+\color{black}
+\section*{The default (square-tiled) wallpaper
+  overlayed with a centered on this page}
+\newpage
+
+\ClearWallPaper
+\section*{The wallpaper removed}
+\newpage
+
+\ThisURCornerWallPaper{0.25}{example-image-a}
+\ThisLLCornerWallPaper{0.5}{example-image-a}
+\section*{LLCornerWallpaper and URCornerWallpaper }
+
+\end{document}

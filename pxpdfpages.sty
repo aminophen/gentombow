@@ -1,0 +1,72 @@
+%
+% pxpdfpages.sty
+% written by Hironobu Yamashita (@aminophen)
+%
+% This package is part of the gentombow bundle.
+% https://github.com/aminophen/gentombow
+%
+% This package is expected to be compatible with
+%   * pdfpages.sty
+%     (2015/07/19 v0.5a -- 2020/01/28 v0.5q)
+%   * plcore.ltx in platex
+%     (2001/09/26 v1.2a -- 2020/09/28 v1.3g)
+%
+
+%% package declaration
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pxpdfpages}
+  [2020/10/08 v0.4a Patch to pdfpages for tombow]
+
+%% preparations
+\def\pxpdpg@pkgname{pxpdfpages}
+\def\pxpdpg@warn{\PackageWarningNoLine\pxpdpg@pkgname}
+\def\pxpdpg@info{\PackageInfo\pxpdpg@pkgname}
+\let\pxpdpg@debug\@gobble
+%\def\pxpdpg@debug#1{\typeout{\pxpdpg@pkgname: [DEBUG] #1}}% for debug
+
+%% load it
+\RequirePackageWithOptions{pdfpages}% pdfpages requires atbegshi
+\ifx\AtBegShi@Output\@undefined
+  % LaTeX2e 2020-10-01: an emulation by ``atbegshi-ltx.sty''
+  % => pLaTeX2e 2020-10-01 natively supports it
+\else
+  % older: the real ``atbegshi.sty'' is loaded
+  \RequirePackage{pxatbegshi}
+\fi
+
+%% do it
+%-- similar to bounddvi.sty (checked 2020/10/08 v8.2)
+% detection of \iftombow availability is delayed until \AtBeginDocument,
+% to support both (u)pLaTeX kernel and ``gentombow.sty''
+\AtBeginDocument{\pxpdpg@do}
+\def\pxpdpg@do{%
+  \ifx\tombowtrue\@undefined
+    \pxpdpg@debug{Tombow feature unavailable, no patch applied}%
+    \let\pxpdpg@switch\relax % do nothing
+  \fi
+  \pxpdpg@switch}
+%
+\def\pxpdpg@switch{\pxpdpg@patch@pdfpages}
+
+%% patch internal for pdfpages to work with tombow
+%-- Note: this code should be copied to gentombow.sty!
+\def\pxpdpg@patch@pdfpages{%
+  \RequirePackage{etoolbox}
+  \patchcmd{\AM@output}{%
+    \setlength{\@tempdima}{\AM@xmargin}%
+    \edef\AM@xmargin{\the\@tempdima}%
+    \setlength{\@tempdima}{\AM@ymargin}%
+    \edef\AM@ymargin{\the\@tempdima}%
+  }{%
+    \setlength{\@tempdima}{\AM@xmargin\iftombow+1in\fi}%
+    \edef\AM@xmargin{\the\@tempdima}%
+    \setlength{\@tempdima}{\AM@ymargin\iftombow-1in\fi}%
+    \edef\AM@ymargin{\the\@tempdima}%
+  }%
+  {\pxpdpg@info{Patch for pdfpages applied}}%
+  {\pxpdpg@warn{Patch for pdfpages failed}}%
+}
+
+%% all done
+
+\endinput

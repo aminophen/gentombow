@@ -1,0 +1,39 @@
+% based on `eso-ex3.tex' in eso-pic
+% -- example for import pages of another (pdf) document.
+
+\RequirePackage{plautopatch}
+
+\listfiles
+\documentclass[a4paper,dvipdfmx,tombow]{jarticle}
+\usepackage{graphicx}
+\usepackage{ifthen,calc,eso-pic}
+\usepackage{bounddvi}
+
+\newcounter{thispdfpage}\newcounter{afterlastpdfpage}
+\newcommand{\includepdfpages}[3]
+{%
+  \setcounter{thispdfpage}{#2}\setcounter{afterlastpdfpage}{#3+1}%
+  \newpage
+  \whiledo{\value{thispdfpage} < \value{afterlastpdfpage}}%
+  {%
+    \AddToShipoutPicture*
+    {%
+      \put(0,0){%
+        \includegraphics[width=\paperwidth,height=\paperheight,%
+                         keepaspectratio,page=\arabic{thispdfpage}]{#1}}%
+    }
+    \thispagestyle{empty}\mbox{}\newpage
+    \stepcounter{thispdfpage}%
+  }
+}
+
+\begin{document}
+
+\section{First page of the main document}
+
+% import pages 1 to 3 of an external document.
+\includepdfpages{img/multimg.pdf}{1}{3}
+
+\section{First page after the imported pages of the external document}
+
+\end{document}

@@ -1,0 +1,95 @@
+%
+% pxtextpos.sty
+% written by Hironobu Yamashita (@aminophen)
+%
+% This package is part of the gentombow bundle.
+% https://github.com/aminophen/gentombow
+%
+% This package is expected to be compatible with
+%   * textpos.sty
+%     2005/10/13 v1.6a -- 2019/04/15 v1.9.1
+%
+
+%% package declaration
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pxtextpos}
+    [2020/10/08 v0.4a Patch to textpos for tombow]
+
+%% preparations
+\def\pxtxtpos@pkgname{pxtextpos}
+\def\pxtxtpos@warn{\PackageWarningNoLine\pxtxtpos@pkgname}
+\let\pxtxtpos@debug\@gobble
+%\def\pxtxtpos@debug#1{\typeout{\pxtxtpos@pkgname: [DEBUG] #1}}% for debug
+
+%% load it
+\RequirePackageWithOptions{textpos}
+
+%% do it
+%-- similar to bounddvi.sty (checked 2020/10/08 v8.2)
+% detection of \iftombow availability is delayed until \AtBeginDocument,
+% to support both (u)pLaTeX kernel and ``gentombow.sty''
+\AtBeginDocument{\pxtxtpos@do}
+\def\pxtxtpos@do{%
+  \ifx\tombowtrue\@undefined
+    \pxtxtpos@debug{Tombow feature unavailable, no patch applied}%
+    \let\pxtxtpos@switch\relax % do nothing
+  \fi
+  \pxtxtpos@switch}
+%
+\def\pxtxtpos@switch{%
+  \let\textblockorigin\pxtxtpos@textblockorigin
+  \ifTP@abspos\textblockorigin{0pt}{0pt}\fi %% reset
+}
+
+%% known definition
+\def\pxtxtpos@textblockorigin#1#2{%
+  \ifTP@abspos
+    \TP@ox=-1in    \addtolength\TP@ox{#1}
+    \TP@oy=-1in    \addtolength\TP@oy{#2}
+    \ifTP@chatter\typeout{TextBlockOrigin set to #1 x #2}\fi
+  \else
+    \PackageError{textpos}
+      {The \protect\textblockorigin\space command\MessageBreak
+       may only be used if the package was given\MessageBreak
+       the`absolute' option when it was invoked}
+      {If you want to use the \protect\textblockorigin\space command, then
+         \MessageBreak
+       invoke the package with the syntax\MessageBreak
+       \protect\usepackage[absolute]{textpos}}
+  \fi
+}
+\@onlypreamble\pxtxtpos@textblockorigin
+
+%% check definition
+\ifx\textblockorigin\pxtxtpos@textblockorigin\else
+  \pxtxtpos@warn{%
+    Command \noexpand\textblockorigin is beyond my knowledge.\MessageBreak
+    I will apply the patch anyway, but it may break:\MessageBreak
+    Please report to the author of `\pxtxtpos@pkgname.sty'}
+\fi
+
+%% new definition
+\def\pxtxtpos@textblockorigin#1#2{%
+  \ifTP@abspos
+    \TP@ox=-1in    \addtolength\TP@ox{#1}
+    \TP@oy=-1in    \addtolength\TP@oy{#2}
+    %%% addition
+    \iftombow
+      \addtolength\TP@ox{1in}\addtolength\TP@oy{1in}
+    \fi
+    %%%
+    \ifTP@chatter\typeout{TextBlockOrigin set to #1 x #2}\fi
+  \else
+    \PackageError{textpos}
+      {The \protect\textblockorigin\space command\MessageBreak
+       may only be used if the package was given\MessageBreak
+       the`absolute' option when it was invoked}
+      {If you want to use the \protect\textblockorigin\space command, then
+         \MessageBreak
+       invoke the package with the syntax\MessageBreak
+       \protect\usepackage[absolute]{textpos}}
+  \fi
+}
+
+\endinput
+%% EOF
