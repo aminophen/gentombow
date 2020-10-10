@@ -3,14 +3,10 @@
   \epTeXinputencoding utf8    % ensure utf-8 encoding for platex
 \fi
 
+\RequirePackage{plautopatch}% pldocverb
 \documentclass[a4paper,dvipdfmx]{jsarticle}
 \usepackage{doc}
 \makeatletter
-%%% import from jltxdoc.cls
-\def\verb{\relax\ifmmode\hbox\else\leavevmode\vadjust{}\fi
-  \bgroup \let\do\do@noligs \verbatim@nolig@list
-    \ttfamily \verb@eol@error \let\do\@makeother \dospecials
-    \@ifstar{\@sverb}{\@vobeyspaces \frenchspacing \@sverb}}
 \xspcode"5C=3 %% \
 \xspcode"22=3 %% "
 %%% dangerous bend
@@ -207,7 +203,11 @@ C系列(\texttt{c0}--\texttt{c10})と
 なお、ここでも用紙サイズが横長の場合は自動的に出力も横長になり、
 縦長の場合は自動的に縦長になります。
 
-オプションは\jMeta{トンボ形式}\texttt{-}\jMeta{出力サイズ}の書式で与えます。
+オプションは\jMeta{トンボ形式}\texttt{-}\jMeta{出力サイズ}の書式
+\footnote{他のパッケージで見られるようなkey=value形式ではないので
+注意してください。このような特殊なオプション書式を用いているのは、
+オプション名が他のクラスファイルやパッケージと衝突する可能性を
+小さくするためです。}で与えます。
 トンボ形式は、p\LaTeX の標準クラスと同じで
 \verb+tombow+, \verb+tombo+, \verb+mentuke+のいずれかを選びます
 （\verb+tombow+はジョブ情報を表示し、\verb+tombo+は表示しません。
