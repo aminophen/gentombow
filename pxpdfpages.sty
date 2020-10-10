@@ -8,14 +8,12 @@
 % This package is expected to be compatible with
 %   * pdfpages.sty
 %     (2015/07/19 v0.5a -- 2020/01/28 v0.5q)
-%   * plcore.ltx in platex
-%     (2001/09/26 v1.2a -- 2020/09/28 v1.3g)
 %
 
 %% package declaration
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{pxpdfpages}
-  [2020/10/08 v0.4a Patch to pdfpages for tombow]
+  [2020/10/10 v0.4b Patch to pdfpages for tombow]
 
 %% preparations
 \def\pxpdpg@pkgname{pxpdfpages}
@@ -26,12 +24,14 @@
 
 %% load it
 \RequirePackageWithOptions{pdfpages}% pdfpages requires atbegshi
-\ifx\AtBegShi@Output\@undefined
-  % LaTeX2e 2020-10-01: an emulation by ``atbegshi-ltx.sty''
-  % => pLaTeX2e 2020-10-01 natively supports it
-\else
-  % older: the real ``atbegshi.sty'' is loaded
-  \RequirePackage{pxatbegshi}
+\ifx\pfmtversion\@undefined\else
+  \ifx\AtBegShi@Output\@undefined
+    % LaTeX2e 2020-10-01: an emulation by ``atbegshi-ltx.sty''
+    % => pLaTeX2e 2020-10-01 natively supports it
+  \else
+    % older: the real ``atbegshi.sty'' is loaded
+    \IfFileExists{pxatbegshi.sty}{\RequirePackage{pxatbegshi}}{}
+  \fi
 \fi
 
 %% do it
