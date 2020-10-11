@@ -29,7 +29,6 @@ All packages except bounddvi.sty works with the followings:
     Old version (v6.0) of this package, written by Koichi INOUE
     in 2004, is available at
     https://www.ma.ns.tcu.ac.jp/Pages/TeX/bounddvi.sty.html
-    (dead link).
     Now it is maintained by Hironobu Yamashita by his courtesy.
 
 ## Miscellaneous patches
