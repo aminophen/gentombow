@@ -616,12 +616,15 @@
     \def\pxgtmb@driver{x}
   \fi
   % required for putting \special to every page
-  \ifx\pfmtname\@undefined
-    \RequirePackage{atbegshi}
-  \else
-    \IfFileExists{pxatbegshi.sty}
-                 {\RequirePackage{pxatbegshi}}
-                 {\RequirePackage{atbegshi}}
+  \RequirePackage{atbegshi}
+  \ifx\pfmtname\@undefined\else
+    \ifx\AtBegShi@Output\@undefined
+      % LaTeX2e 2020-10-01: an emulation by ``atbegshi-ltx.sty''
+      % => pLaTeX2e 2020-10-01 natively supports it
+    \else
+      % older: the real ``atbegshi.sty'' is loaded
+      \IfFileExists{pxatbegshi.sty}{\RequirePackage{pxatbegshi}}{}
+    \fi
   \fi
   % do it
   \if x\pxgtmb@driver
@@ -733,34 +736,8 @@
 \@onlypreamble\settombowbleed
 
 %% patch internal of pdfpages.sty to work with tombow
-%% (based on ``pxpdfpages.sty'' 2018/08/20 v0.1)
-%% Note the code is the same as that of pxpdfpages.sty,
-%% but reserved here since gentombow.sty can be used on
-%% any LaTeX format
-%% (cf. pxpdfpages.sty is restricted to (u)pLaTeX)
 \def\pxgtmb@patch@pdfpages{%
-  \RequirePackage{etoolbox}
-  \patchcmd{\AM@output}{%
-    \setlength{\@tempdima}{\AM@xmargin}%
-    \edef\AM@xmargin{\the\@tempdima}%
-    \setlength{\@tempdima}{\AM@ymargin}%
-    \edef\AM@ymargin{\the\@tempdima}%
-  }{%
-    \setlength{\@tempdima}{\AM@xmargin\iftombow+1in\fi}%
-    \edef\AM@xmargin{\the\@tempdima}%
-    \setlength{\@tempdima}{\AM@ymargin\iftombow-1in\fi}%
-    \edef\AM@ymargin{\the\@tempdima}%
-  }
-  {\PackageInfo{\pxgtmb@pkgname}{Patch for pdfpages applied}}
-  {\PackageWarningNoLine{\pxgtmb@pkgname}{Patch for pdfpages failed}}%
-}
-%% however, if running (u)pLaTeX, use pxpdfpages.sty if available
-\ifx\pfmtname\@undefined\else
-  \IfFileExists{pxpdfpages.sty}{%
-    \def\pxgtmb@patch@pdfpages{\RequirePackage{pxpdfpages}}%
-  }{}
-\fi
-%% do it
+  \IfFileExists{pxpdfpages.sty}{\RequirePackage{pxpdfpages}}{}}
 \AtBeginDocument{\@ifpackageloaded{pdfpages}{\pxgtmb@patch@pdfpages}{}}
 
 %% patch pdfx.sty
