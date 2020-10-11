@@ -23,6 +23,19 @@
 
 %% load it
 \RequirePackageWithOptions{textpos}
+% textpos requires everyshi, only if both conditions are met:
+%  (1) \fmtversion is **older** than 2020/10/01
+%  (2) \ifTP@abspos == \iftrue
+% [TODO] tate-mode support is incomplete!
+\ifx\pfmtname\@undefined\else
+  \ifx\@EveryShipout@Output\@undefined
+    % LaTeX2e 2020-10-01: an emulation by ``everyshi-ltx.sty''
+    % => pLaTeX2e 2020-10-01 natively supports it
+  \else
+    % older: the real ``everyshi.sty'' is loaded
+    \IfFileExists{pxeveryshi.sty}{\RequirePackage{pxeveryshi}}{}
+  \fi
+\fi
 
 %% do it
 %-- similar to bounddvi.sty (checked 2020/10/08 v8.2)
