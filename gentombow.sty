@@ -20,7 +20,7 @@
 % case 1: pLaTeX2e <2018-04-01>+2 or older
 % case 0: pLaTeX2e <2018-05-20> or newer
 % --- checked plcore.ltx in platex 2020/09/28 v1.3g
-\ifx\pfmtversion\@undefined
+\ifx\pfmtname\@undefined
   \@ifpackageloaded{luatexja}{}{\chardef\pxgtmb@errlevel=\tw@}
 \fi
 \ifnum\pxgtmb@errlevel<\tw@
