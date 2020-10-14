@@ -26,7 +26,7 @@ All packages except bounddvi.sty works with the followings:
     Set papersize special to DVI file.
     Can be used on LaTeX/pLaTeX/upLaTeX (with DVI output mode)
     with dvips or dvipdfmx drivers.
-    Old version (v6.0) was written by Koichi INOU in 2004
+    Old version (v6.0) was written by Koichi INOUE in 2004
     (https://www.ma.ns.tcu.ac.jp/Pages/TeX/bounddvi.sty.html),
     and incorporated into this bundle by his courtesy.
 
