@@ -8,7 +8,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{gentombow}
-    [2022/09/10 v0.9m Generate crop mark 'tombow']
+    [2022/10/31 v0.9n Generate crop mark 'tombow']
 \def\pxgtmb@pkgname{gentombow}
 \@namedef{ver@pxgentombow.sty}{}% fake
 
@@ -102,6 +102,7 @@
 %
 
 % provides equivalent for plcore.ltx
+% note: \maketombowbox is always (re)defined later
 \pxgtmb@sel@two
 {%% case 2 begin
 \newif\iftombow \tombowfalse
@@ -131,49 +132,6 @@
 }%% case 2 end
 \pxgtmb@sel@twoone
 {%% case 2 and 1 begin
-\def\maketombowbox{% hide \yoko from all boxes
-  \setbox\@TL\hbox to\z@{\csname yoko\endcsname\hss
-      \vrule width\dimexpr 10mm+\@tombowbleed\relax height\@tombowwidth depth\z@
-      \vrule height10mm width\@tombowwidth depth\z@
-      \iftombowdate
-        \raise4pt\hbox to\z@{\hskip5mm\@bannerfont\the\@bannertoken\hss}%
-      \fi}%
-  \setbox\@Tl\hbox to\z@{\csname yoko\endcsname\hss
-      \vrule width10mm height\@tombowwidth depth\z@
-      \vrule height\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth depth\z@}%
-  \setbox\@TC\hbox{\csname yoko\endcsname
-      \vrule width10mm height\@tombowwidth depth\z@
-      \vrule height10mm width\@tombowwidth depth\z@
-      \vrule width10mm height\@tombowwidth depth\z@}%
-  \setbox\@TR\hbox to\z@{\csname yoko\endcsname
-      \vrule height10mm width\@tombowwidth depth\z@
-      \vrule width\dimexpr 10mm+\@tombowbleed\relax height\@tombowwidth depth\z@\hss}%
-  \setbox\@Tr\hbox to\z@{\csname yoko\endcsname
-      \vrule height\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth depth\z@
-      \vrule width10mm height\@tombowwidth depth\z@\hss}%
-  \setbox\@BL\hbox to\z@{\csname yoko\endcsname\hss
-      \vrule width\dimexpr 10mm+\@tombowbleed\relax depth\@tombowwidth height\z@
-      \vrule depth10mm width\@tombowwidth height\z@}%
-  \setbox\@Bl\hbox to\z@{\csname yoko\endcsname\hss
-      \vrule width10mm depth\@tombowwidth height\z@
-      \vrule depth\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth height\z@}%
-  \setbox\@BC\hbox{\csname yoko\endcsname
-      \vrule width10mm depth\@tombowwidth height\z@
-      \vrule depth10mm width\@tombowwidth height\z@
-      \vrule width10mm depth\@tombowwidth height\z@}%
-  \setbox\@BR\hbox to\z@{\csname yoko\endcsname
-      \vrule depth10mm width\@tombowwidth height\z@
-      \vrule width\dimexpr 10mm+\@tombowbleed\relax depth\@tombowwidth height\z@\hss}%
-  \setbox\@Br\hbox to\z@{\csname yoko\endcsname
-      \vrule depth\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth height\z@
-      \vrule width10mm depth\@tombowwidth height\z@\hss}%
-  \setbox\@CL\hbox to\z@{\csname yoko\endcsname\hss
-      \vrule width10mm height.5\@tombowwidth depth.5\@tombowwidth
-      \vrule height10mm depth10mm width\@tombowwidth}%
-  \setbox\@CR\hbox to\z@{\csname yoko\endcsname
-      \vrule height10mm depth10mm width\@tombowwidth
-      \vrule height.5\@tombowwidth depth.5\@tombowwidth width10mm\hss}%
-}
 \def\@outputtombow{%
   \iftombow
   \vbox to\z@{\kern-\dimexpr 10mm+\@tombowbleed\relax\relax
@@ -222,6 +180,87 @@
 \newcount\hour
 \newcount\minute
 }%% case 2 end
+
+% provide my own definition of \maketombowbox
+\def\maketombowbox{% hide \yoko from all boxes
+  \setbox\@TL\hbox to\z@{\csname yoko\endcsname\hss
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax height\@tombowwidth depth\z@
+      \vrule height10mm width\@tombowwidth depth\z@
+      \iftombowdate
+        \raise4pt\hbox to\z@{\hskip5mm\@bannerfont\the\@bannertoken\hss}%
+      \fi}%
+  \setbox\@Tl\hbox to\z@{\csname yoko\endcsname\hss
+      \vrule width10mm height\@tombowwidth depth\z@
+      \vrule height\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth depth\z@}%
+  \setbox\@TC\hbox{\csname yoko\endcsname \pxgtmb@shape@TC}%
+  \setbox\@TR\hbox to\z@{\csname yoko\endcsname
+      \vrule height10mm width\@tombowwidth depth\z@
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax height\@tombowwidth depth\z@\hss}%
+  \setbox\@Tr\hbox to\z@{\csname yoko\endcsname
+      \vrule height\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth depth\z@
+      \vrule width10mm height\@tombowwidth depth\z@\hss}%
+  \setbox\@BL\hbox to\z@{\csname yoko\endcsname\hss
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax depth\@tombowwidth height\z@
+      \vrule depth10mm width\@tombowwidth height\z@}%
+  \setbox\@Bl\hbox to\z@{\csname yoko\endcsname\hss
+      \vrule width10mm depth\@tombowwidth height\z@
+      \vrule depth\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth height\z@}%
+  \setbox\@BC\hbox{\csname yoko\endcsname \pxgtmb@shape@BC}%
+  \setbox\@BR\hbox to\z@{\csname yoko\endcsname
+      \vrule depth10mm width\@tombowwidth height\z@
+      \vrule width\dimexpr 10mm+\@tombowbleed\relax depth\@tombowwidth height\z@\hss}%
+  \setbox\@Br\hbox to\z@{\csname yoko\endcsname
+      \vrule depth\dimexpr 10mm+\@tombowbleed\relax width\@tombowwidth height\z@
+      \vrule width10mm depth\@tombowwidth height\z@\hss}%
+  \setbox\@CL\hbox to\z@{\csname yoko\endcsname\hss\pxgtmb@shape@CL}%
+  \setbox\@CR\hbox to\z@{\csname yoko\endcsname\pxgtmb@shape@CR\hss}%
+}
+%
+\def\pxgtmb@shape@TC@default{% (T)-shape
+      \vrule width10mm height\@tombowwidth depth\z@
+      \vrule height10mm width\@tombowwidth depth\z@
+      \vrule width10mm height\@tombowwidth depth\z@
+}
+\def\pxgtmb@shape@TC@cross{% (+)-shape
+      \raise3mm\hbox{\vrule width10mm height\@tombowwidth depth\z@}%
+      \raise1mm\hbox{\vrule height9mm width\@tombowwidth depth\z@}%
+      \raise3mm\hbox{\vrule width10mm height\@tombowwidth depth\z@}%
+}
+\def\pxgtmb@shape@BC@default{% (T)-shape
+      \vrule width10mm depth\@tombowwidth height\z@
+      \vrule depth10mm width\@tombowwidth height\z@
+      \vrule width10mm depth\@tombowwidth height\z@
+}
+\def\pxgtmb@shape@BC@cross{% (+)-shape
+      \lower3mm\hbox{\vrule width10mm depth\@tombowwidth height\z@}%
+      \lower1mm\hbox{\vrule depth9mm width\@tombowwidth height\z@}%
+      \lower3mm\hbox{\vrule width10mm depth\@tombowwidth height\z@}%
+}
+\def\pxgtmb@shape@CL@default{% (T)-shape
+      \vrule width10mm height.5\@tombowwidth depth.5\@tombowwidth
+      \vrule height10mm depth10mm width\@tombowwidth
+}
+\def\pxgtmb@shape@CL@cross{% (+)-shape
+      \vrule width7mm height.5\@tombowwidth depth.5\@tombowwidth
+      \vrule height10mm depth10mm width\@tombowwidth
+      \vrule width2mm height.5\@tombowwidth depth.5\@tombowwidth
+      \kern1mm
+}
+\def\pxgtmb@shape@CR@default{% (T)-shape
+      \vrule height10mm depth10mm width\@tombowwidth
+      \vrule height.5\@tombowwidth depth.5\@tombowwidth width10mm
+}
+\def\pxgtmb@shape@CR@cross{% (+)-shape
+      \kern1mm
+      \vrule height.5\@tombowwidth depth.5\@tombowwidth width2mm
+      \vrule height10mm depth10mm width\@tombowwidth
+      \vrule height.5\@tombowwidth depth.5\@tombowwidth width7mm
+}
+\def\pxgtmb@shape@TC{\csname pxgtmb@shape@TC@\@tombowshape\endcsname}
+\def\pxgtmb@shape@BC{\csname pxgtmb@shape@BC@\@tombowshape\endcsname}
+\def\pxgtmb@shape@CL{\csname pxgtmb@shape@CL@\@tombowshape\endcsname}
+\def\pxgtmb@shape@CR{\csname pxgtmb@shape@CR@\@tombowshape\endcsname}
+\def\@tombowshape{default}% default: (T)-shape
 
 %%%%% EMULATION END
 
@@ -705,7 +744,7 @@
 
 %% make visible tombow box according to the current status of
 %% \@bannerfont, \@bannertoken, \@tombowwidth & \@tombowbleed
-\maketombowbox
+\AtBeginDocument{\maketombowbox}
 
 %% shift amount
 \hoffset .5\stockwidth
@@ -730,7 +769,9 @@
 \newcommand{\settombowbleed}[1]{%
   \def\@tombowbleed{#1}\maketombowbox}
 \newcommand{\settombowcolor}[1]{%
-  \def\@tombowcolor{#1}}
+  \def\@tombowcolor{#1}}% only specials
+\newcommand{\settombowshape}[1]{%
+  \def\@tombowshape{#1}\maketombowbox}
 % forbid changing \@tombowbleed after \begin{document}
 % because pdf boxes are calculated only inside \AtBeginDocument
 \@onlypreamble\settombowbleed
